@@ -46,7 +46,7 @@ _heading_to_toc() {
         -e 's/^#* //' \
     )
     link_target="${link_text,,}"
-    link_target="${link_target//[\$\`]/}"
+    link_target="${link_target//[\$\`()]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"
     printf "%s* [%s](#%s)\n" \
         "$indent" \

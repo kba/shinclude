@@ -5,8 +5,6 @@ typeset -A BLOCK_PASS
 #-----------------------------------
 # BEGIN-INCLUDE src/logging.bash
 
-
-
 ## ## DIAGNOSTICS
 ##
 ## ### `$LOGLEVEL`
@@ -30,13 +28,8 @@ _error() {
     exit 2
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/style.bash
-
-
-
-typeset -A COMMENT_STYLE_START COMMENT_STYLE_END RENDER_STYLE EXT_TO_STYLE
 
 # #### `$EXT_TO_STYLE`
 #
@@ -46,6 +39,7 @@ typeset -A COMMENT_STYLE_START COMMENT_STYLE_END RENDER_STYLE EXT_TO_STYLE
 #       EXT_TO_STYLE[markdown]="markdown"
 #       EXT_TO_STYLE[ronn]="markdown"
 #
+typeset -A EXT_TO_STYLE
 export EXT_TO_STYLE=()
 
 # #### `$COMMENT_STYLE_START`
@@ -54,6 +48,7 @@ export EXT_TO_STYLE=()
 #
 #       COMMENT_STYLE_START[html]="<!--"
 #
+typeset -A COMMENT_STYLE_START
 export COMMENT_STYLE_START=()
 
 # #### `$COMMENT_STYLE_END`
@@ -62,6 +57,7 @@ export COMMENT_STYLE_START=()
 #
 #       COMMENT_STYLE_END[html]="-->"
 #
+typeset -A COMMENT_STYLE_END
 export COMMENT_STYLE_END=()
 
 # #### `$RENDER_STYLE`
@@ -70,6 +66,7 @@ export COMMENT_STYLE_END=()
 #
 #     RENDER_STYLE[perl]="grep '^#='"
 #
+typeset -A RENDER_STYLE
 export RENDER_STYLE=()
 
 ##
@@ -241,11 +238,8 @@ _detect_style() {
     fi
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-EVAL.bash
-
-
 
 ## ### EVAL
 ##
@@ -280,11 +274,8 @@ _block_EVAL() {
     printf "%s" "$(eval "${blockargs//\//\/}")" 
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-INCLUDE.bash
-
-
 
 ## ### INCLUDE
 ##
@@ -336,11 +327,8 @@ _block_INCLUDE() {
     done
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-RENDER.bash
-
-
 
 ## ### RENDER
 ##
@@ -369,11 +357,8 @@ _block_RENDER() {
     printf "%s" "$(eval "$cmd")"
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-MARKDOWN-TOC.bash
-
-
 
 ## ### MARKDOWN-TOC
 ##
@@ -423,7 +408,7 @@ _heading_to_toc() {
         -e 's/^#* //' \
     )
     link_target="${link_text,,}"
-    link_target="${link_target//[\$\`]/}"
+    link_target="${link_target//[\$\`()]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"
     printf "%s* [%s](#%s)\n" \
         "$indent" \
@@ -442,7 +427,6 @@ _block_MARKDOWN-TOC() {
     done < "$infile"
     # for mdline in
 }
-
 
 # END-INCLUDE
 #-----------------------------------
@@ -494,12 +478,12 @@ _parse_lines() {
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
               _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
-              printf "%s\n\n%s\n\n%s\n" "$begin" "$block" "$line"
+              printf "%s\n%s\n%s\n" "$begin" "$block" "$line"
               continue;
           fi
           _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"
           _debug 2 "PASS $pass: RUN $blocktype '$blockargs' '$block'"
-          printf "%s\n\n%s\n\n%s\n" \
+          printf "%s\n%s\n\n%s\n" \
               "$begin" \
               "$("_block_$blocktype" "$blockargs" "$block" "$infile")" \
               "$line"

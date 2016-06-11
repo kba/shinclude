@@ -1,5 +1,3 @@
-typeset -A COMMENT_STYLE_START COMMENT_STYLE_END RENDER_STYLE EXT_TO_STYLE
-
 # #### `$EXT_TO_STYLE`
 #
 # Associative array of file extesions (w/o dot) to language.
@@ -8,6 +6,7 @@ typeset -A COMMENT_STYLE_START COMMENT_STYLE_END RENDER_STYLE EXT_TO_STYLE
 #       EXT_TO_STYLE[markdown]="markdown"
 #       EXT_TO_STYLE[ronn]="markdown"
 #
+typeset -A EXT_TO_STYLE
 export EXT_TO_STYLE=()
 
 # #### `$COMMENT_STYLE_START`
@@ -16,6 +15,7 @@ export EXT_TO_STYLE=()
 #
 #       COMMENT_STYLE_START[html]="<!--"
 #
+typeset -A COMMENT_STYLE_START
 export COMMENT_STYLE_START=()
 
 # #### `$COMMENT_STYLE_END`
@@ -24,6 +24,7 @@ export COMMENT_STYLE_START=()
 #
 #       COMMENT_STYLE_END[html]="-->"
 #
+typeset -A COMMENT_STYLE_END
 export COMMENT_STYLE_END=()
 
 # #### `$RENDER_STYLE`
@@ -32,6 +33,7 @@ export COMMENT_STYLE_END=()
 #
 #     RENDER_STYLE[perl]="grep '^#='"
 #
+typeset -A RENDER_STYLE
 export RENDER_STYLE=()
 
 ##

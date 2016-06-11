@@ -8,8 +8,6 @@ shinclude(1) -- include directives for code/markup comments
 
 []: BEGIN-RENDER src/shinclude.bash
 
-
-
 ## OPTIONS
 ### -h
 ### --help
@@ -50,14 +48,11 @@ Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
 Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
 
-
 []: END-RENDER
 
 ## BLOCK DIRECTIVES
 
 []: BEGIN-INCLUDE doc/SYNTAX.md
-
-
 
 Included content is fenced by comments that contain
 `BEGIN-<block-type>` and `END-<block-type>` respectively.
@@ -71,11 +66,8 @@ Fencing comments **must** start at the start of the line.
     <end-line> ::= <com-start> <spc> END-<block-type> <spc>? <com-end>?
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
 
-
 []: END-INCLUDE
 []: BEGIN-RENDER src/block-EVAL.bash
-
-
 
 ### EVAL
 
@@ -100,11 +92,8 @@ will be transformed to
 
     # END-EVAL
 
-
 []: END-RENDER
 []: BEGIN-RENDER src/block-INCLUDE.bash
-
-
 
 ### INCLUDE
 
@@ -141,11 +130,8 @@ will be transformed to
     SOFTWARE.
     # END-INCLUDE
 
-
 []: END-RENDER
 []: BEGIN-RENDER src/block-RENDER.bash
-
-
 
 ### RENDER
 
@@ -153,11 +139,8 @@ Renders a file to markdown using a [shell expression](#render_ext).
 
 Runs on **first** pass
 
-
 []: END-RENDER
 []: BEGIN-RENDER src/block-MARKDOWN-TOC.bash
-
-
 
 ### MARKDOWN-TOC
 
@@ -190,12 +173,9 @@ Runs on first pass
 
 String to indent a single level. Default: `\t`
 
-
 []: END-RENDER
 
 []: BEGIN-RENDER src/style.bash
-
-
 
 
 ## COMMENT STYLES
@@ -303,11 +283,8 @@ Extensions:
   * `*.jade`
   * `*.pug`
 
-
 []: END-RENDER
 []: BEGIN-RENDER src/logging.bash
-
-
 
 ## DIAGNOSTICS
 
@@ -316,7 +293,6 @@ Extensions:
 Default: 0
 
 See [`-d`](#-d) and [`-dd`](#-dd)
-
 
 []: END-RENDER
 
@@ -327,8 +303,6 @@ Konstantin Baierer <https://github.com/kba>
 ## COPYRIGHT
 
 []: BEGIN-INCLUDE LICENSE
-
-
 
 The MIT License (MIT)
 
@@ -351,7 +325,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 
 []: END-INCLUDE
 
