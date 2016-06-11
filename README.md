@@ -2,8 +2,23 @@ shinclude
 =========
 Include file contents or ouptut of shell commands in a code/markup comments
 
-<!-- BEGIN-MARKDOWN-TOC -->
+[![Build Status](https://travis-ci.org/kba/shinclude.svg?branch=master)](https://travis-ci.org/kba/shinclude)
 
+<!-- BEGIN-EVAL echo '<pre>';echo shinclude|figlet -f slant;echo '</pre>' -->
+
+<pre>
+         __    _            __          __
+   _____/ /_  (_)___  _____/ /_  ______/ /__
+  / ___/ __ \/ / __ \/ ___/ / / / / __  / _ \
+ (__  ) / / / / / / / /__/ / /_/ / /_/ /  __/
+/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/
+
+</pre>
+
+<!-- END-EVAL -->
+
+
+<!-- BEGIN-MARKDOWN-TOC -->
 * [INSTALL](#install)
 * [OPTIONS](#options)
 	* [-h](#-h)
@@ -47,8 +62,6 @@ make install
 
 <!-- BEGIN-RENDER src/shinclude.bash -->
 
-
-
 ## OPTIONS
 ### -h
 ### --help
@@ -89,14 +102,9 @@ Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
 Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
 
-
 <!-- END-RENDER -->
 
-## SYNTAX
-
 <!-- BEGIN-INCLUDE doc/SYNTAX.md -->
-
-
 
 Included content is fenced by comments that contain
 `BEGIN-<block-type>` and `END-<block-type>` respectively.
@@ -110,14 +118,11 @@ Fencing comments **must** start at the start of the line.
     <end-line> ::= <com-start> <spc> END-<block-type> <spc>? <com-end>?
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
 
-
 <!-- END-INCLUDE -->
 
 ## BLOCK DIRECTIVES
 
 <!-- BEGIN-RENDER src/block-EVAL.bash -->
-
-
 
 ### EVAL
 
@@ -142,12 +147,9 @@ will be transformed to
 
     # END-EVAL
 
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-INCLUDE.bash -->
-
-
 
 ### INCLUDE
 
@@ -184,12 +186,9 @@ will be transformed to
     SOFTWARE.
     # END-INCLUDE
 
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-RENDER.bash -->
-
-
 
 ### RENDER
 
@@ -197,12 +196,9 @@ Renders a file to markdown using a [shell expression](#render_ext).
 
 Runs on **first** pass
 
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-MARKDOWN-TOC.bash -->
-
-
 
 ### MARKDOWN-TOC
 
@@ -235,12 +231,9 @@ Runs on first pass
 
 String to indent a single level. Default: `\t`
 
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/logging.bash -->
-
-
 
 ## DIAGNOSTICS
 
@@ -250,12 +243,9 @@ Default: 0
 
 See [`-d`](#-d) and [`-dd`](#-dd)
 
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/style.bash -->
-
-
 
 
 ## COMMENT STYLES
@@ -362,6 +352,5 @@ Extensions:
 
   * `*.jade`
   * `*.pug`
-
 
 <!-- END-RENDER -->
