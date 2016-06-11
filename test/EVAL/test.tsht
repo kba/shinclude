@@ -12,7 +12,7 @@ infile="EVAL.md"
 exec_ok "$BINARY" "-h"
 
 # test eval
-equals_file "$($BINARY -d $infile)" expected "exec '$BINARY $infile'"
+equals_file "$($BINARY $infile)" expected "exec '$BINARY $infile'"
 
 # # test eval from stdin
 equals_file "$(cat "$infile" | $BINARY -c markdown -)" expected "eval from stdin"
