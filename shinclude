@@ -1,0 +1,629 @@
+#!/bin/bash
+
+typeset -A BLOCK_PASS
+
+#-----------------------------------
+# BEGIN-INCLUDE src/logging.bash
+
+
+
+## ## DIAGNOSTICS
+##
+## ### `$LOGLEVEL`
+##
+## Default: 0
+##
+## See [`-d`](#-d) and [`-dd`](#-dd)
+##
+LOGLEVEL=${LOGLEVEL:-0}
+
+_debug() {
+    level="$1"
+    shift
+    if ((LOGLEVEL >= level));then
+        echo -e "# \e[35;1mDEBUG\e[39;0m $*" >&2
+    fi
+}
+
+_error() {
+    echo -e "\e[31;1mERROR\e[39;0m $*" >&2
+    exit 2
+}
+
+
+# END-INCLUDE
+# BEGIN-INCLUDE src/style.bash
+
+
+
+typeset -A COMMENT_STYLE_START COMMENT_STYLE_END RENDER_STYLE EXT_TO_STYLE
+
+# #### `$EXT_TO_STYLE`
+#
+# Associative array of file extesions (w/o dot) to language.
+#
+#       EXT_TO_STYLE[md]="markdown"
+#       EXT_TO_STYLE[markdown]="markdown"
+#       EXT_TO_STYLE[ronn]="markdown"
+#
+export EXT_TO_STYLE=()
+
+# #### `$COMMENT_STYLE_START`
+#
+# Associative array of comment start strings for select languages
+#
+#       COMMENT_STYLE_START[html]="<!--"
+#
+export COMMENT_STYLE_START=()
+
+# #### `$COMMENT_STYLE_END`
+#
+# Associative array of comment start strings for select languages
+#
+#       COMMENT_STYLE_END[html]="-->"
+#
+export COMMENT_STYLE_END=()
+
+# #### `$RENDER_STYLE`
+#
+# Shell command to RENDER by extension
+#
+#     RENDER_STYLE[perl]="grep '^#='"
+#
+export RENDER_STYLE=()
+
+##
+## ## COMMENT STYLES
+##
+
+## ### xml
+##
+## Comment style:
+##
+##       <!-- BEGIN-... -->
+##       <!-- END-... -->
+##
+COMMENT_STYLE_START[xml]="<!--"
+COMMENT_STYLE_END[xml]="-->"
+##
+## File Extensions:
+##
+## * `.html`
+## * `*.xml`
+##
+EXT_TO_STYLE[html]='xml'
+EXT_TO_STYLE[xml]='xml'
+
+## ### markdown
+##
+## Comment style:
+##
+##     []: BEGIN-...
+##     []: END-...
+##
+COMMENT_STYLE_START[markdown]="[]:"
+COMMENT_STYLE_END[markdown]=""
+## Render style:
+## * Just like INCLUDE
+##
+RENDER_STYLE[markdown]="cat '%s'"
+##
+## Extensions:
+##   * `*.ronn`
+##   * `*.md`
+##
+EXT_TO_STYLE[md]='markdown'
+EXT_TO_STYLE[markdown]='markdown'
+EXT_TO_STYLE[ronn]='markdown'
+
+## ### pound
+##
+## Comment style:
+##
+##     # BEGIN-...
+##     # END-...
+##
+COMMENT_STYLE_START[pound]="#"
+COMMENT_STYLE_END[pound]=""
+## Render style:
+##
+##   * Prefix comments to render with `##`
+##
+RENDER_STYLE[pound]="grep '^\\s*##' '%s'|sed 's/^\\s*## \\\?//'"
+## Extensions:
+##
+##   * `*.sh`
+##   * `*.bash`
+##   * `*.zsh`
+##   * `*.py`
+##   * `*.pl`
+##   * `*.PL`
+##   * `*.coffee`
+##
+EXT_TO_STYLE[sh]='pound'
+EXT_TO_STYLE[bash]='pound'
+EXT_TO_STYLE[zsh]='pound'
+EXT_TO_STYLE[py]='pound'
+EXT_TO_STYLE[pl]='pound'
+EXT_TO_STYLE[PL]='pound'
+EXT_TO_STYLE[coffee]='pound'
+
+## ### slashstar
+##
+## Comment style:
+##
+##     /* BEGIN-... */
+##     /* END-... */
+##
+## File Extensions:
+##
+## * `*.cpp`
+## * `*.cxx`
+## * `*.java`
+##
+EXT_TO_STYLE[cpp]='slashstar'
+EXT_TO_STYLE[cxx]='slashstar'
+EXT_TO_STYLE[java]='slashstar'
+COMMENT_STYLE_START[slashstar]="/*"
+COMMENT_STYLE_END[slashstar]="*/"
+
+## ### doubleslash
+##
+## File Extensions:
+##
+##     // BEGIN-...
+##     // END-...
+##
+COMMENT_STYLE_START[doubleslash]="//"
+COMMENT_STYLE_END[doubleslash]=""
+##
+## File Extensions:
+##
+##   * `*.c`
+##   * `*.js`
+##
+EXT_TO_STYLE[js]='doubleslash'
+EXT_TO_STYLE[c]='doubleslash'
+
+## ### doublequote
+##
+## Comment style:
+##
+##     " BEGIN-...
+##     " END-...
+##
+COMMENT_STYLE_START[doublequote]="\""
+COMMENT_STYLE_END[doubleslash]=""
+##
+## File Extensions:
+##
+## * `*.vim`
+##
+EXT_TO_STYLE[vim]='doublequote'
+
+## ### doubleslashbang
+##
+## Comment style:
+##
+##     //! BEGIN-...
+##     //! END-...
+##
+COMMENT_STYLE_START[doubleslashbang]="//!"
+COMMENT_STYLE_END[doubleslashbang]=""
+## Render style:
+##
+##   * Run through `jade` template engine
+##
+RENDER_STYLE[jade]="jade -P < '%s'|sed -n '2,\$p'"
+## Extensions:
+##
+##   * `*.jade`
+##   * `*.pug`
+##
+EXT_TO_STYLE[jade]='doubleslashbang'
+EXT_TO_STYLE[pug]='doubleslashbang'
+
+# ### _detect_style
+# 
+# Detect comment style by file extension. Default: 'xml'
+#
+#     _detect_style "foo.md"    # -> 'markdown'
+#     _detect_style "foo.pl"    # -> 'pound'
+#
+_detect_style() {
+    local ext
+    ext=${1##*.}
+    if [[ ! -z "${EXT_TO_STYLE[$ext]}" ]];then
+        echo "${EXT_TO_STYLE[$ext]}"
+    else
+        _debug 0 "Unknown extension $ext, defaulting to 'xml'"
+        echo 'xml'
+    fi
+}
+
+
+# END-INCLUDE
+# BEGIN-INCLUDE src/block-EVAL.bash
+
+
+
+## ### EVAL
+##
+## Evaluates the arguments as a shell expression. **BE CAREFUL**
+##
+## EVAL Runs on **first** pass
+## 
+##     # BEGIN-EVAL wc *
+##     # END-EVAL
+## 
+## 
+## will be transformed to
+## 
+##     # BEGIN-EVAL wc *
+##
+##       21   171  1085 LICENSE
+##       51   106   978 Makefile
+##      290   461  4058 README.md
+##      558  1267 12212 shinclude
+##      275   828  5565 shinclude.1
+##     1723  4100 36080 total
+##
+##     # END-EVAL
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[EVAL]=1
+
+_block_EVAL() {
+    local blockargs
+    blockargs="$1"
+    printf "%s" "$(eval "${blockargs//\//\/}")" 
+}
+
+
+# END-INCLUDE
+# BEGIN-INCLUDE src/block-INCLUDE.bash
+
+
+
+## ### INCLUDE
+##
+## Include data from a file.
+##
+## `INCLUDE` runs on **first** pass.
+##
+##     # BEGIN-INCLUDE LICENSE
+##     # END-INCLUDE
+##
+## will be transformed to
+##
+##     # BEGIN-INCLUDE LICENSE
+##     The MIT License (MIT)
+##     
+##     Copyright (c) 2016 Konstantin Baierer
+##     
+##     Permission is hereby granted, free of charge, to any person obtaining a copy
+##     of this software and associated documentation files (the "Software"), to deal
+##     in the Software without restriction, including without limitation the rights
+##     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+##     copies of the Software, and to permit persons to whom the Software is
+##     furnished to do so, subject to the following conditions:
+##     
+##     The above copyright notice and this permission notice shall be included in all
+##     copies or substantial portions of the Software.
+##     
+##     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+##     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+##     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+##     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+##     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+##     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+##     SOFTWARE.
+##     # END-INCLUDE
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[INCLUDE]=1
+
+_block_INCLUDE() {
+    local blockargs includefile
+    blockargs="$1"
+    local IFS=$'\n'
+    # shellcheck disable=2001
+    for includefile in $(echo "$blockargs"|sed 's/,\s*/\n/g');do
+        _debug 2 "INCLUDE: Including $includefile"
+        cat "$includefile"
+    done
+}
+
+
+# END-INCLUDE
+# BEGIN-INCLUDE src/block-RENDER.bash
+
+
+
+## ### RENDER
+##
+## Renders a file to markdown using a [shell expression](#render_ext).
+##
+## Runs on **first** pass
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[RENDER]=1
+
+_block_RENDER() {
+    ext=${blockargs##*.}
+    _debug 2 "RENDER: extension == '$ext'"
+    style="${EXT_TO_STYLE[$ext]}"
+    if [[ -z "$style" ]];then
+        _error "Cannot render '$ext'. Define \$EXT_TO_STYLE[$ext]."
+    fi
+    render="${RENDER_STYLE[$style]}"
+    if [[ -z "$render" ]];then
+        _error "Cannot render '$style'. Define \$RENDER_STYLE[$style]."
+    fi
+    # shellcheck disable=2059
+    cmd=$(printf "${RENDER_STYLE[$style]}" "$blockargs")
+    _debug 2 "RENDER: command == '$cmd'"
+    printf "%s" "$(eval "$cmd")"
+}
+
+
+# END-INCLUDE
+# BEGIN-INCLUDE src/block-MARKDOWN-TOC.bash
+
+
+
+## ### MARKDOWN-TOC
+##
+## Reads in the file and outputs a table of contents of
+## the markdown headings.
+##
+## Runs on **second** pass
+##
+##     # First Heading
+##
+##     []: BEGIN-MARKDOWN-TOC
+##     []: END-MARKDOWN-TOC
+##
+##     ## Second-Level Heading
+##
+## will be transformed to 
+##
+##     # First Heading
+##
+##     []: BEGIN-MARKDOWN-TOC
+##
+##     * [First Heading](#first-heading)
+##     	* [Second-Level  Heading](#second-level-heading)
+##
+##     []: END-MARKDOWN-TOC
+##
+##     ## Second-Level Heading
+
+## Runs on first pass
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[MARKDOWN-TOC]=2
+
+## #### `$MARKDOWN_TOC_INDENT`
+##
+## String to indent a single level. Default: `\t`
+##
+MARKDOWN_TOC_INDENT=${MARKDOWN_TOC_INDENT:-	}
+
+_heading_to_toc() {
+    heading="$1"
+    # shellcheck disable=2001
+    indent=$(echo "${heading//[^#]/}" |sed 's/^##//')
+    indent=${indent//\#/$MARKDOWN_TOC_INDENT}
+    # shellcheck disable=2001
+    link_text=$(echo "$heading" |sed  \
+        -e 's/^#* //' \
+    )
+    link_target="${link_text,,}"
+    link_target="${link_target//[\$\`]/}"
+    link_target="${link_target//[^A-Za-z0-9_]/-}"
+    printf "%s* [%s](#%s)\n" \
+        "$indent" \
+        "$link_text" \
+        "$link_target"
+}
+
+_block_MARKDOWN-TOC() {
+    local blockargs block line infile
+    infile="$3"
+    IFS=$'\n'
+    while read line;do
+        if [[ "$line" =~ ^## ]];then
+            _heading_to_toc "$line"
+        fi
+    done < "$infile"
+    # for mdline in
+}
+
+
+# END-INCLUDE
+#-----------------------------------
+
+# ### usage
+#
+# Show usage
+#
+usage() {
+  echo "Usage: $0 [-h] [-c COMMENT_STYLE] [-i] <action> [input-file]"
+  [[ ! -z "$1" ]] && echo -e "\n!! $* !!\n"
+  echo '
+  Input File:
+
+    If input-file is "-", read from STDIN.
+    If no input-file is given, assume "./README.md"'
+}
+
+# shellcheck disable=2094
+_parse_lines() {
+    local pass line begin end blocktype blockargs block infile
+    pass=$1
+    infile=$2
+    IFS=$'\n'
+    while read -r line;do
+      if [[ "$line" = "$COMMENT_START BEGIN-"* ]];then
+          begin="$line"
+
+          blocktype="${begin:${#COMMENT_START}:${#line}}"
+          blocktype="${blocktype##*BEGIN-}"
+          blocktype="${blocktype%$COMMENT_END}"
+          blocktype="${blocktype%% *}"
+
+          blockargs="${begin:${#COMMENT_START}:${#line}}"
+          blockargs="${blockargs#*BEGIN-$blocktype}"
+          blockargs="${blockargs# }"
+          blockargs="${blockargs% $COMMENT_END}"
+
+          block=""
+          while
+              read -r line \
+              && [[ "$line" != "$COMMENT_START END-$blocktype"* \
+              && "$line" != *"END-$blocktype $COMMENT_END"   ]]
+          do
+              printf -v block "%s\n%s" "$block" "$line"
+          done
+          if ! declare -f -F "_block_$blocktype">/dev/null;then
+              _error "No such block type '$blocktype'"
+          fi
+          if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
+              _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
+              printf "%s\n\n%s\n\n%s\n" "$begin" "$block" "$line"
+              continue;
+          fi
+          _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"
+          _debug 2 "PASS $pass: RUN $blocktype '$blockargs' '$block'"
+          printf "%s\n\n%s\n\n%s\n" \
+              "$begin" \
+              "$("_block_$blocktype" "$blockargs" "$block" "$infile")" \
+              "$line"
+      else
+          _debug 2 "PASS $pass: (ign) $line"
+          printf "%s\n" "$line"
+      fi
+    done < "$infile"
+}
+
+## ## OPTIONS
+_parse_args() {
+
+    while [[ "$1" != '-' && "$1" = -* ]];do
+        case "$1" in
+            -h)
+                ## ### -h
+                ## ### --help
+                ##
+                ## help
+                ##
+                usage
+                exit ;;
+            -i|--inplace)
+                ## ### -i
+                ## ### --inplace
+                ##
+                ## Edit the file in-place
+                ##
+                IN_PLACE=true 
+                ;;
+            -c|--coment-style)
+                ## ### -c COMMENT_STYLE
+                ## ### --comment-style COMMENT_STYLE
+                ##
+                ## Comment style. See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_STYLE="$2"; shift
+                ;;
+            -cs|--comment-start)
+                ## ### -cs COMMENT_START
+                ## ### --comment-start COMMENT_START
+                ##
+                ## Comment start. Overrides language-specific comment start.
+                ##
+                ## See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_START="$2"; shift
+                ;;
+            -ce|--comment-end)
+                ## ### -ce COMMENT_END
+                ## ### --comment-end COMMENT_END
+                ##
+                ## Comment end. Overrides language-specific comment end.
+                ##
+                ## See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_END="$2"; shift
+                ;;
+            -d|--debug)
+                ## ### -d
+                ## ### --debug
+                ##
+                ## Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=1
+                ;;
+            -dd|--trace) 
+                ## ### -dd
+                ## ### --trace
+                ##
+                ## Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=2
+                set -x
+                ;;
+        esac
+        shift
+    done
+
+    if [[ "$1" && "$1" == "-" ]] ; then infile=/dev/stdin
+    elif [[ "$1"              ]] ; then infile="$1"
+    elif [[ -e "README.md"    ]] ; then infile="README.md"
+    else _error "No file or stdin passed"; fi
+
+    if [[ $IN_PLACE && "$infile" = "/dev/stdin" ]];then
+        usage "Cannot edit STDIN in-place"
+        exit 1
+    fi
+
+    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_style "$infile")}
+    if [[ -z "$COMMENT_STYLE" ]];then
+        _error "Unable to detect comment style."
+    fi
+    COMMENT_START=${COMMENT_START:-${COMMENT_STYLE_START[$COMMENT_STYLE]}}
+    COMMENT_END=${COMMENT_END:-${COMMENT_STYLE_END[$COMMENT_STYLE]}}
+    _debug 1 "COMMENT_STYLE=$COMMENT_STYLE"
+    _debug 1 "COMMENT_START=$COMMENT_START"
+    _debug 1 "COMMENT_END=$COMMENT_END"
+    _debug 1 "infile=$infile"
+}
+
+#
+# main
+#
+
+_parse_args "$@"
+
+# first pass
+tempfile1=$(mktemp --tmpdir)
+_debug 1 "tempfile1=$tempfile1"
+trap 'rm $tempfile1' EXIT INT TERM
+_parse_lines 1 "$infile" > "$tempfile1"
+
+# second pass
+tempfile2=$(mktemp --tmpdir)
+_debug 1 "tempfile2=$tempfile2"
+trap 'rm $tempfile2' EXIT INT TERM
+_parse_lines 2 "$tempfile1" > "$tempfile2"
+
+if [[ $IN_PLACE ]];then
+    cp "$tempfile2" "$infile"
+else
+    cat "$tempfile2"
+fi

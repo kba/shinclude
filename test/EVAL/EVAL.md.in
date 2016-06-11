@@ -1,0 +1,2 @@
+[]: BEGIN-EVAL echo "Foo!"
+[]: END-EVAL

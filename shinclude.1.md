@@ -1,51 +1,12 @@
-shinclude
-=========
-Include file contents or ouptut of shell commands in a code/markup comments
+shinclude(1) -- include directives for code/markup comments
+===========================================================
 
-<!-- BEGIN-MARKDOWN-TOC -->
+## SYNOPSIS
 
-* [INSTALL](#install)
-* [OPTIONS](#options)
-	* [-h](#-h)
-	* [--help](#--help)
-	* [-i](#-i)
-	* [--inplace](#--inplace)
-	* [-c COMMENT_STYLE](#-c-comment_style)
-	* [--comment-style COMMENT_STYLE](#--comment-style-comment_style)
-	* [-cs COMMENT_START](#-cs-comment_start)
-	* [--comment-start COMMENT_START](#--comment-start-comment_start)
-	* [-ce COMMENT_END](#-ce-comment_end)
-	* [--comment-end COMMENT_END](#--comment-end-comment_end)
-	* [-d](#-d)
-	* [--debug](#--debug)
-	* [-dd](#-dd)
-	* [--trace](#--trace)
-* [BLOCK DIRECTIVES](#block-directives)
-	* [EVAL](#eval)
-	* [INCLUDE](#include)
-	* [RENDER](#render)
-	* [MARKDOWN-TOC](#markdown-toc)
-		* [`$MARKDOWN_TOC_INDENT`](#markdown_toc_indent)
-* [DIAGNOSTICS](#diagnostics)
-	* [`$LOGLEVEL`](#loglevel)
-* [COMMENT STYLES](#comment-styles)
-	* [xml](#xml)
-	* [markdown](#markdown)
-	* [pound](#pound)
-	* [slashstar](#slashstar)
-	* [doubleslash](#doubleslash)
-	* [doublequote](#doublequote)
-	* [doubleslashbang](#doubleslashbang)
+`shinclude` [options...] <file><br>
+`shinclude` [options...] <-><br>
 
-<!-- END-MARKDOWN-TOC -->
-
-## INSTALL
-
-```
-make install
-```
-
-<!-- BEGIN-RENDER src/shinclude.bash -->
+[]: BEGIN-RENDER src/shinclude.bash
 
 
 
@@ -90,11 +51,11 @@ Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
 
 
-<!-- END-RENDER -->
+[]: END-RENDER
 
-## SYNTAX
+## BLOCK DIRECTIVES
 
-<!-- BEGIN-INCLUDE doc/SYNTAX.md -->
+[]: BEGIN-INCLUDE doc/SYNTAX.md
 
 
 
@@ -111,11 +72,8 @@ Fencing comments **must** start at the start of the line.
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
 
 
-<!-- END-INCLUDE -->
-
-## BLOCK DIRECTIVES
-
-<!-- BEGIN-RENDER src/block-EVAL.bash -->
+[]: END-INCLUDE
+[]: BEGIN-RENDER src/block-EVAL.bash
 
 
 
@@ -143,9 +101,8 @@ will be transformed to
     # END-EVAL
 
 
-<!-- END-RENDER -->
-
-<!-- BEGIN-RENDER src/block-INCLUDE.bash -->
+[]: END-RENDER
+[]: BEGIN-RENDER src/block-INCLUDE.bash
 
 
 
@@ -162,19 +119,19 @@ will be transformed to
 
     # BEGIN-INCLUDE LICENSE
     The MIT License (MIT)
-
+    
     Copyright (c) 2016 Konstantin Baierer
-
+    
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-
+    
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-
+    
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -185,9 +142,8 @@ will be transformed to
     # END-INCLUDE
 
 
-<!-- END-RENDER -->
-
-<!-- BEGIN-RENDER src/block-RENDER.bash -->
+[]: END-RENDER
+[]: BEGIN-RENDER src/block-RENDER.bash
 
 
 
@@ -198,9 +154,8 @@ Renders a file to markdown using a [shell expression](#render_ext).
 Runs on **first** pass
 
 
-<!-- END-RENDER -->
-
-<!-- BEGIN-RENDER src/block-MARKDOWN-TOC.bash -->
+[]: END-RENDER
+[]: BEGIN-RENDER src/block-MARKDOWN-TOC.bash
 
 
 
@@ -218,7 +173,7 @@ Runs on **second** pass
 
     ## Second-Level Heading
 
-will be transformed to
+will be transformed to 
 
     # First Heading
 
@@ -236,24 +191,9 @@ Runs on first pass
 String to indent a single level. Default: `\t`
 
 
-<!-- END-RENDER -->
+[]: END-RENDER
 
-<!-- BEGIN-RENDER src/logging.bash -->
-
-
-
-## DIAGNOSTICS
-
-### `$LOGLEVEL`
-
-Default: 0
-
-See [`-d`](#-d) and [`-dd`](#-dd)
-
-
-<!-- END-RENDER -->
-
-<!-- BEGIN-RENDER src/style.bash -->
+[]: BEGIN-RENDER src/style.bash
 
 
 
@@ -364,4 +304,54 @@ Extensions:
   * `*.pug`
 
 
-<!-- END-RENDER -->
+[]: END-RENDER
+[]: BEGIN-RENDER src/logging.bash
+
+
+
+## DIAGNOSTICS
+
+### `$LOGLEVEL`
+
+Default: 0
+
+See [`-d`](#-d) and [`-dd`](#-dd)
+
+
+[]: END-RENDER
+
+## AUTHOR
+
+Konstantin Baierer <https://github.com/kba>
+
+## COPYRIGHT
+
+[]: BEGIN-INCLUDE LICENSE
+
+
+
+The MIT License (MIT)
+
+Copyright (c) 2016 Konstantin Baierer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+[]: END-INCLUDE
+
