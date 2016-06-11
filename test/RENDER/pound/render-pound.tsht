@@ -1,0 +1,12 @@
+#!/usr/bin/env tsht
+BINARY="../../../shinclude"
+
+input="
+// BEGIN-RENDER to-render.sh
+// END-RENDER
+"
+
+use colordiff
+
+plan 1
+equals_file "$(echo "$input" | $BINARY -c doubleslash -)" expected
