@@ -4,33 +4,34 @@
 ##
 ## Reads in the file and outputs a table of contents of
 ## the markdown headings.
+
 ##
 ## Runs on **second** pass
 ##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[MARKDOWN-TOC]=2
+
+##
 ##     # First Heading
 ##
-##     []: BEGIN-MARKDOWN-TOC
-##     []: END-MARKDOWN-TOC
+##     [rem]: BEGIN-MARKDOWN-TOC
+##     [rem]: END-MARKDOWN-TOC
 ##
 ##     ## Second-Level Heading
 ##
-## will be transformed to 
+## will be transformed to (`shinclude -cs '[rem]:' -ce '' -`)
 ##
 ##     # First Heading
 ##
-##     []: BEGIN-MARKDOWN-TOC
+##     [rem]: BEGIN-MARKDOWN-TOC
 ##
 ##     * [First Heading](#first-heading)
 ##     	* [Second-Level  Heading](#second-level-heading)
 ##
-##     []: END-MARKDOWN-TOC
+##     [rem]: END-MARKDOWN-TOC
 ##
 ##     ## Second-Level Heading
-
-## Runs on first pass
-typeset -A BLOCK_PASS
-# shellcheck disable=2034
-BLOCK_PASS[MARKDOWN-TOC]=2
 
 ## #### `$MARKDOWN_TOC_INDENT`
 ##
@@ -40,9 +41,11 @@ MARKDOWN_TOC_INDENT=${MARKDOWN_TOC_INDENT:-	}
 
 ## #### `$HEADING_REGEX`
 ##
-## Heading used to detect and tokenize headings.
+## Regex used to detect and tokenize headings.
 ##
-HEADING_REGEX='^\s*(##+)\s*(.*)'
+## Default: `^(##+)\s*(.*)`
+##
+HEADING_REGEX='^(##+)\s*(.*)'
 
 ## #### Heading-to-Link algorithm
 ##
@@ -52,13 +55,14 @@ _heading_to_toc() {
     pounds="$1"
     link_text="$2"
     _debug 2 "MARKDOWN-TOC: Link Text: '$link_text' Link level: ${#pounds}"
-    ## Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
+    ## Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
     ##
-    indent=${pounds//\#/$MARKDOWN_TOC_INDENT}
+    indent=${pounds#\##}
+    indent=${indent//\#/$MARKDOWN_TOC_INDENT}
     ## Link target: Start with Link Text
     ##
     ## * lowercase
-    ## * remove `$`, <code>`</code>, `(`, `)`, `.`
+    ## * remove `` $ ` ( ) . ``
     ## * Replace all non-alphanumeric characters with `-`
     ## * If link target not used previously
     ## * then set `EXISTING_HEADINGS[$link_target]` to `1`

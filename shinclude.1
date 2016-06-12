@@ -68,9 +68,9 @@ Enable debug logging (\fI\fB$LOGLEVEL=1\fR\fR)
 .SS "\-\-debug"
 Enable trace logging (\fB$LOGLEVEL=2\fR)\.
 .
-.SS "\-dd"
+.SS "\-ddd"
 .
-.SS "\-\-debug"
+.SS "\-\-trace"
 Enable trace logging (\fB$LOGLEVEL=2\fR) and print every statement as it is executed\.
 .
 .SH "BLOCK DIRECTIVES"
@@ -206,8 +206,8 @@ Runs on \fBsecond\fR pass
 
 # First Heading
 
-[]: BEGIN\-MARKDOWN\-TOC
-[]: END\-MARKDOWN\-TOC
+[rem]: BEGIN\-MARKDOWN\-TOC
+[rem]: END\-MARKDOWN\-TOC
 
 ## Second\-Level Heading
 .
@@ -216,7 +216,7 @@ Runs on \fBsecond\fR pass
 .IP "" 0
 .
 .P
-will be transformed to
+will be transformed to (\fBshinclude \-cs \'[rem]:\' \-ce \'\' \-\fR)
 .
 .IP "" 4
 .
@@ -224,12 +224,12 @@ will be transformed to
 
 # First Heading
 
-[]: BEGIN\-MARKDOWN\-TOC
+[rem]: BEGIN\-MARKDOWN\-TOC
 
 * [First Heading](#first\-heading)
     * [Second\-Level  Heading](#second\-level\-heading)
 
-[]: END\-MARKDOWN\-TOC
+[rem]: END\-MARKDOWN\-TOC
 
 ## Second\-Level Heading
 .
@@ -238,16 +238,16 @@ will be transformed to
 .IP "" 0
 .
 .P
-Runs on first pass
-.
-.P
 String to indent a single level\. Default: \fB\et\fR
 .
 .P
-Heading used to detect and tokenize headings\.
+Regex used to detect and tokenize headings\.
 .
 .P
-Indentation: Number of leading \fB#\fR * \fB$MARKDOWN_TOC_INDENT\fR
+Default: \fB^(##+)\es*(\.*)\fR
+.
+.P
+Indentation: Concatenate \fB$MARKDOWN_TOC_INDENT\fR times the number of leading \fB#\fR\- 2
 .
 .P
 Link target: Start with Link Text
@@ -256,7 +256,7 @@ Link target: Start with Link Text
 lowercase
 .
 .IP "\(bu" 4
-remove \fB$\fR, \fB\fB</code>,\fR(\fB,\fR)\fB,\fR\.`\fR
+remove \fB$ ` ( ) \.\fR
 .
 .IP "\(bu" 4
 Replace all non\-alphanumeric characters with \fB\-\fR

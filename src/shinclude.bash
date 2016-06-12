@@ -163,8 +163,8 @@ _parse_args() {
                 LOGLEVEL=2
                 ;;
             -ddd|--trace) 
-                ## ### -dd
-                ## ### --debug
+                ## ### -ddd
+                ## ### --trace
                 ##
                 ## Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
                 ##

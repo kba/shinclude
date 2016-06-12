@@ -57,8 +57,8 @@ Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
 Enable trace logging (`$LOGLEVEL=2`).
 
-### -dd
-### --debug
+### -ddd
+### --trace
 
 Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
 
@@ -165,42 +165,44 @@ the markdown headings.
 
 Runs on **second** pass
 
+
     # First Heading
 
-    []: BEGIN-MARKDOWN-TOC
-    []: END-MARKDOWN-TOC
+    [rem]: BEGIN-MARKDOWN-TOC
+    [rem]: END-MARKDOWN-TOC
 
     ## Second-Level Heading
 
-will be transformed to 
+will be transformed to (`shinclude -cs '[rem]:' -ce '' -`)
 
     # First Heading
 
-    []: BEGIN-MARKDOWN-TOC
+    [rem]: BEGIN-MARKDOWN-TOC
 
     * [First Heading](#first-heading)
     	* [Second-Level  Heading](#second-level-heading)
 
-    []: END-MARKDOWN-TOC
+    [rem]: END-MARKDOWN-TOC
 
     ## Second-Level Heading
-Runs on first pass
 #### `$MARKDOWN_TOC_INDENT`
 
 String to indent a single level. Default: `\t`
 
 #### `$HEADING_REGEX`
 
-Heading used to detect and tokenize headings.
+Regex used to detect and tokenize headings.
+
+Default: `^(##+)\s*(.*)`
 
 #### Heading-to-Link algorithm
 
-Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
+Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
 
 Link target: Start with Link Text
 
 * lowercase
-* remove `$`, <code>`</code>, `(`, `)`, `.`
+* remove `` $ ` ( ) . ``
 * Replace all non-alphanumeric characters with `-`
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`
