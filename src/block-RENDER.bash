@@ -27,7 +27,11 @@ _block_RENDER() {
             _debug 1 "RENDER: Rendering $dir/$renderfile"
             cmd=$(printf "${RENDER_STYLE[$style]}" "$dir/$renderfile")
             _debug 2 "RENDER: command == '$cmd'"
-            printf "%s" "$(eval "$cmd")"
+            output=$(eval "$cmd")
+            if (( $? > 0 ));then
+                _error "Rendering failed: $output"
+            fi
+            printf "%s" "$output"
             return
         fi
     done
