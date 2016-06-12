@@ -9,7 +9,8 @@ typeset -A BLOCK_PASS
 BLOCK_PASS[RENDER]=1
 
 _block_RENDER() {
-    ext=${blockargs##*.}
+    renderfile="$1"
+    ext=${renderfile##*.}
     _debug 2 "RENDER: extension == '$ext'"
     style="${EXT_TO_RENDER_STYLE[$ext]}"
     if [[ -z "$style" ]];then
@@ -20,7 +21,15 @@ _block_RENDER() {
         _error "Cannot render '$style'. Define \$RENDER_STYLE[$style]."
     fi
     # shellcheck disable=2059
-    cmd=$(printf "${RENDER_STYLE[$style]}" "$blockargs")
-    _debug 2 "RENDER: command == '$cmd'"
-    printf "%s" "$(eval "$cmd")"
+    for dir in "${SHINCLUDE_PATH[@]}";do
+        _debug 2 "RENDER: Trying $dir/$renderfile"
+        if [[ -e "$dir/$renderfile" ]];then
+            _debug 1 "RENDER: Rendering $dir/$renderfile"
+            cmd=$(printf "${RENDER_STYLE[$style]}" "$dir/$renderfile")
+            _debug 2 "RENDER: command == '$cmd'"
+            printf "%s" "$(eval "$cmd")"
+            return
+        fi
+    done
+    _error "No file found in includes: $renderfile"
 }

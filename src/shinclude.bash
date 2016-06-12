@@ -1,6 +1,9 @@
 #!/bin/bash
 
 typeset -A BLOCK_PASS
+typeset -a SHINCLUDE_PATH
+SHINCLUDE_PATH=()
+SHINCLUDE_PATH+=("$PWD")
 
 #-----------------------------------
 # BEGIN-INCLUDE src/logging.bash
@@ -100,6 +103,18 @@ _parse_args() {
                 ## Edit the file in-place
                 ##
                 IN_PLACE=true 
+                ;;
+            -p|--shinclude-path)
+                ## ### -p PATH
+                ## ### --shinclude-path PATH
+                ##
+                ## Add path to path to look for `INCLUDE` and `RENDER`.
+                ##
+                ## Can be repeated to add multiple paths.
+                ##
+                ## Default: `("$PWD")`
+                ##
+                SHINCLUDE_PATH+=("$2"); shift
                 ;;
             -c|--coment-style)
                 ## ### -c COMMENT_STYLE

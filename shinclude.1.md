@@ -19,6 +19,15 @@ help
 
 Edit the file in-place
 
+### -p PATH
+### --shinclude-path PATH
+
+Add path to path to look for `INCLUDE` and `RENDER`.
+
+Can be repeated to add multiple paths.
+
+Default: `("$PWD")`
+
 ### -c COMMENT_STYLE
 ### --comment-style COMMENT_STYLE
 

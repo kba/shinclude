@@ -1,6 +1,9 @@
 #!/bin/bash
 
 typeset -A BLOCK_PASS
+typeset -a SHINCLUDE_PATH
+SHINCLUDE_PATH=()
+SHINCLUDE_PATH+=("$PWD")
 
 #-----------------------------------
 # BEGIN-INCLUDE src/logging.bash
@@ -371,8 +374,14 @@ _block_INCLUDE() {
     local IFS=$'\n'
     # shellcheck disable=2001
     for includefile in $(echo "$blockargs"|sed 's/,\s*/\n/g');do
-        _debug 2 "INCLUDE: Including $includefile"
-        cat "$includefile"
+        for dir in "${SHINCLUDE_PATH[@]}";do
+            _debug 2 "INCLUDE: Trying $dir/$includefile"
+            if [[ -e "$dir/$includefile" ]];then
+                _debug 1 "INCLUDE: Including $includefile"
+                cat "$dir/$includefile"
+                break;
+            fi
+        done
     done
 }
 
@@ -390,7 +399,8 @@ typeset -A BLOCK_PASS
 BLOCK_PASS[RENDER]=1
 
 _block_RENDER() {
-    ext=${blockargs##*.}
+    renderfile="$1"
+    ext=${renderfile##*.}
     _debug 2 "RENDER: extension == '$ext'"
     style="${EXT_TO_RENDER_STYLE[$ext]}"
     if [[ -z "$style" ]];then
@@ -401,9 +411,17 @@ _block_RENDER() {
         _error "Cannot render '$style'. Define \$RENDER_STYLE[$style]."
     fi
     # shellcheck disable=2059
-    cmd=$(printf "${RENDER_STYLE[$style]}" "$blockargs")
-    _debug 2 "RENDER: command == '$cmd'"
-    printf "%s" "$(eval "$cmd")"
+    for dir in "${SHINCLUDE_PATH[@]}";do
+        _debug 2 "RENDER: Trying $dir/$renderfile"
+        if [[ -e "$dir/$renderfile" ]];then
+            _debug 1 "RENDER: Rendering $dir/$renderfile"
+            cmd=$(printf "${RENDER_STYLE[$style]}" "$dir/$renderfile")
+            _debug 2 "RENDER: command == '$cmd'"
+            printf "%s" "$(eval "$cmd")"
+            return
+        fi
+    done
+    _error "No file found in includes: $renderfile"
 }
 
 # END-INCLUDE
@@ -563,6 +581,18 @@ _parse_args() {
                 ## Edit the file in-place
                 ##
                 IN_PLACE=true 
+                ;;
+            -p|--shinclude-path)
+                ## ### -p PATH
+                ## ### --shinclude-path PATH
+                ##
+                ## Add path to path to look for `INCLUDE` and `RENDER`.
+                ##
+                ## Can be repeated to add multiple paths.
+                ##
+                ## Default: `("$PWD")`
+                ##
+                SHINCLUDE_PATH+=("$2"); shift
                 ;;
             -c|--coment-style)
                 ## ### -c COMMENT_STYLE

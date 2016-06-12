@@ -43,7 +43,13 @@ _block_INCLUDE() {
     local IFS=$'\n'
     # shellcheck disable=2001
     for includefile in $(echo "$blockargs"|sed 's/,\s*/\n/g');do
-        _debug 2 "INCLUDE: Including $includefile"
-        cat "$includefile"
+        for dir in "${SHINCLUDE_PATH[@]}";do
+            _debug 2 "INCLUDE: Trying $dir/$includefile"
+            if [[ -e "$dir/$includefile" ]];then
+                _debug 1 "INCLUDE: Including $includefile"
+                cat "$dir/$includefile"
+                break;
+            fi
+        done
     done
 }

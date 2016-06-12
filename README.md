@@ -7,12 +7,12 @@ Include file contents or ouptut of shell commands in a code/markup comments
 <!-- BEGIN-EVAL echo '<pre>';echo shinclude|figlet -f slant;echo '</pre>' -->
 
 <pre>
-         __    _            __          __
-   _____/ /_  (_)___  _____/ /_  ______/ /__
+         __    _            __          __   
+   _____/ /_  (_)___  _____/ /_  ______/ /__ 
   / ___/ __ \/ / __ \/ ___/ / / / / __  / _ \
  (__  ) / / / / / / / /__/ / /_/ / /_/ /  __/
-/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/
-
+/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/ 
+                                             
 </pre>
 
 <!-- END-EVAL -->
@@ -25,6 +25,8 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [--help](#--help)
 	* [-i](#-i)
 	* [--inplace](#--inplace)
+	* [-p PATH](#-p-path)
+	* [--shinclude-path PATH](#--shinclude-path-path)
 	* [-c COMMENT_STYLE](#-c-comment_style)
 	* [--comment-style COMMENT_STYLE](#--comment-style-comment_style)
 	* [-cs COMMENT_START](#-cs-comment_start)
@@ -78,6 +80,15 @@ help
 ### --inplace
 
 Edit the file in-place
+
+### -p PATH
+### --shinclude-path PATH
+
+Add path to path to look for `INCLUDE` and `RENDER`.
+
+Can be repeated to add multiple paths.
+
+Default: `("$PWD")`
 
 ### -c COMMENT_STYLE
 ### --comment-style COMMENT_STYLE
@@ -175,19 +186,19 @@ will be transformed to
 
     # BEGIN-INCLUDE LICENSE
     The MIT License (MIT)
-
+    
     Copyright (c) 2016 Konstantin Baierer
-
+    
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-
+    
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-
+    
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -225,7 +236,7 @@ Runs on **second** pass
 
     ## Second-Level Heading
 
-will be transformed to
+will be transformed to 
 
     # First Heading
 
