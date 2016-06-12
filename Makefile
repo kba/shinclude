@@ -13,8 +13,11 @@ SCRIPT_INCLUDES = \
 RONN = $(RONN)
 
 .PHONY: \
+	all \
 	README.md \
 	$(SCRIPT).bootstrap
+
+all: $(SCRIPT) $(SCRIPT).1 README.md
 
 # shinclude.bootstrap: lazily cat included files
 $(SCRIPT).bootstrap:
