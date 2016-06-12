@@ -49,13 +49,18 @@ See \fICOMMENT STYLES\fR\.
 .
 .SS "\-d"
 .
-.SS "\-\-debug"
+.SS "\-\-info"
 Enable debug logging (\fI\fB$LOGLEVEL=1\fR\fR)
 .
 .SS "\-dd"
 .
-.SS "\-\-trace"
-Enable trace logging (\fB$LOGLEVEL=2\fR)\. Prints every statement the shell executes\.
+.SS "\-\-debug"
+Enable trace logging (\fB$LOGLEVEL=2\fR)\.
+.
+.SS "\-dd"
+.
+.SS "\-\-debug"
+Enable trace logging (\fB$LOGLEVEL=2\fR) and print every statement as it is executed\.
 .
 .SH "BLOCK DIRECTIVES"
 Included content is fenced by comments that contain \fBBEGIN\-<block\-type>\fR and \fBEND\-<block\-type>\fR respectively\.
@@ -224,6 +229,75 @@ Runs on first pass
 .P
 String to indent a single level\. Default: \fB\et\fR
 .
+.SH "RENDER STYLES"
+.
+.SS "cat"
+.
+.IP "\(bu" 4
+Echo the lines\. Just like INCLUDE
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB*\.md\fR
+.
+.IP "\(bu" 4
+\fB*\.markdown\fR
+.
+.IP "\(bu" 4
+\fB*\.ronn\fR
+.
+.IP "\(bu" 4
+\fB*\.txt\fR
+.
+.IP "" 0
+.
+.SS "doublepound"
+.
+.IP "\(bu" 4
+Prefix comments to render with \fB##\fR
+.
+.IP "\(bu" 4
+Replace \fB74\fR with current line
+.
+.IP "\(bu" 4
+Replace \fB75\fR with current line
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB*\.sh\fR
+.
+.IP "\(bu" 4
+\fB*\.bash\fR
+.
+.IP "" 0
+.
+.SS "jade"
+Render style:
+.
+.IP "\(bu" 4
+Run through \fBjade\fR template engine
+.
+.IP "" 0
+.
+.P
+Extensions:
+.
+.IP "\(bu" 4
+\fB*\.jade\fR
+.
+.IP "\(bu" 4
+\fB*\.pug\fR
+.
+.IP "" 0
+.
 .SH "COMMENT STYLES"
 .
 .SS "xml"
@@ -266,9 +340,6 @@ Comment style:
 .IP "" 0
 .
 .P
-Render style: * Just like INCLUDE
-.
-.P
 Extensions: * \fB*\.ronn\fR * \fB*\.md\fR
 .
 .SS "pound"
@@ -282,14 +353,6 @@ Comment style:
 # END\-\.\.\.
 .
 .fi
-.
-.IP "" 0
-.
-.P
-Render style:
-.
-.IP "\(bu" 4
-Prefix comments to render with \fB##\fR
 .
 .IP "" 0
 .
@@ -405,14 +468,6 @@ Comment style:
 //! END\-\.\.\.
 .
 .fi
-.
-.IP "" 0
-.
-.P
-Render style:
-.
-.IP "\(bu" 4
-Run through \fBjade\fR template engine
 .
 .IP "" 0
 .

@@ -39,14 +39,19 @@ See [COMMENT STYLES](#comment-styles).
 See [COMMENT STYLES](#comment-styles).
 
 ### -d
-### --debug
+### --info
 
 Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
 ### -dd
-### --trace
+### --debug
 
-Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
+Enable trace logging (`$LOGLEVEL=2`).
+
+### -dd
+### --debug
+
+Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
 
 []: END-RENDER
 
@@ -178,6 +183,42 @@ String to indent a single level. Default: `\t`
 []: BEGIN-RENDER src/style.bash
 
 
+## RENDER STYLES
+
+### cat
+
+* Echo the lines. Just like INCLUDE
+
+File Extensions:
+
+* `*.md`
+* `*.markdown`
+* `*.ronn`
+* `*.txt`
+
+### doublepound
+
+  * Prefix comments to render with `##`
+  * Replace `74` with current line
+  * Replace `75` with current line
+
+File Extensions:
+
+  * `*.sh`
+  * `*.bash`
+
+### jade
+
+Render style:
+
+  * Run through `jade` template engine
+
+Extensions:
+
+  * `*.jade`
+  * `*.pug`
+
+
 ## COMMENT STYLES
 
 ### xml
@@ -200,9 +241,6 @@ Comment style:
     []: BEGIN-...
     []: END-...
 
-Render style:
-* Just like INCLUDE
-
 
 Extensions:
   * `*.ronn`
@@ -214,10 +252,6 @@ Comment style:
 
     # BEGIN-...
     # END-...
-
-Render style:
-
-  * Prefix comments to render with `##`
 
 Extensions:
 
@@ -273,10 +307,6 @@ Comment style:
 
     //! BEGIN-...
     //! END-...
-
-Render style:
-
-  * Run through `jade` template engine
 
 Extensions:
 

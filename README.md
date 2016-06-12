@@ -7,12 +7,12 @@ Include file contents or ouptut of shell commands in a code/markup comments
 <!-- BEGIN-EVAL echo '<pre>';echo shinclude|figlet -f slant;echo '</pre>' -->
 
 <pre>
-         __    _            __          __   
-   _____/ /_  (_)___  _____/ /_  ______/ /__ 
+         __    _            __          __
+   _____/ /_  (_)___  _____/ /_  ______/ /__
   / ___/ __ \/ / __ \/ ___/ / / / / __  / _ \
  (__  ) / / / / / / / /__/ / /_/ / /_/ /  __/
-/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/ 
-                                             
+/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/
+
 </pre>
 
 <!-- END-EVAL -->
@@ -32,9 +32,11 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [-ce COMMENT_END](#-ce-comment_end)
 	* [--comment-end COMMENT_END](#--comment-end-comment_end)
 	* [-d](#-d)
+	* [--info](#--info)
+	* [-dd](#-dd)
 	* [--debug](#--debug)
 	* [-dd](#-dd)
-	* [--trace](#--trace)
+	* [--debug](#--debug)
 * [BLOCK DIRECTIVES](#block-directives)
 	* [EVAL](#eval)
 	* [INCLUDE](#include)
@@ -43,6 +45,10 @@ Include file contents or ouptut of shell commands in a code/markup comments
 		* [`$MARKDOWN_TOC_INDENT`](#markdown_toc_indent)
 * [DIAGNOSTICS](#diagnostics)
 	* [`$LOGLEVEL`](#loglevel)
+* [RENDER STYLES](#render-styles)
+	* [cat](#cat)
+	* [doublepound](#doublepound)
+	* [jade](#jade)
 * [COMMENT STYLES](#comment-styles)
 	* [xml](#xml)
 	* [markdown](#markdown)
@@ -93,14 +99,19 @@ See [COMMENT STYLES](#comment-styles).
 See [COMMENT STYLES](#comment-styles).
 
 ### -d
-### --debug
+### --info
 
 Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
 ### -dd
-### --trace
+### --debug
 
-Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
+Enable trace logging (`$LOGLEVEL=2`).
+
+### -dd
+### --debug
+
+Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
 
 <!-- END-RENDER -->
 
@@ -164,19 +175,19 @@ will be transformed to
 
     # BEGIN-INCLUDE LICENSE
     The MIT License (MIT)
-    
+
     Copyright (c) 2016 Konstantin Baierer
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -214,7 +225,7 @@ Runs on **second** pass
 
     ## Second-Level Heading
 
-will be transformed to 
+will be transformed to
 
     # First Heading
 
@@ -248,6 +259,42 @@ See [`-d`](#-d) and [`-dd`](#-dd)
 <!-- BEGIN-RENDER src/style.bash -->
 
 
+## RENDER STYLES
+
+### cat
+
+* Echo the lines. Just like INCLUDE
+
+File Extensions:
+
+* `*.md`
+* `*.markdown`
+* `*.ronn`
+* `*.txt`
+
+### doublepound
+
+  * Prefix comments to render with `##`
+  * Replace `74` with current line
+  * Replace `75` with current line
+
+File Extensions:
+
+  * `*.sh`
+  * `*.bash`
+
+### jade
+
+Render style:
+
+  * Run through `jade` template engine
+
+Extensions:
+
+  * `*.jade`
+  * `*.pug`
+
+
 ## COMMENT STYLES
 
 ### xml
@@ -270,9 +317,6 @@ Comment style:
     []: BEGIN-...
     []: END-...
 
-Render style:
-* Just like INCLUDE
-
 
 Extensions:
   * `*.ronn`
@@ -284,10 +328,6 @@ Comment style:
 
     # BEGIN-...
     # END-...
-
-Render style:
-
-  * Prefix comments to render with `##`
 
 Extensions:
 
@@ -343,10 +383,6 @@ Comment style:
 
     //! BEGIN-...
     //! END-...
-
-Render style:
-
-  * Run through `jade` template engine
 
 Extensions:
 

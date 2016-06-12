@@ -11,9 +11,9 @@ BLOCK_PASS[RENDER]=1
 _block_RENDER() {
     ext=${blockargs##*.}
     _debug 2 "RENDER: extension == '$ext'"
-    style="${EXT_TO_STYLE[$ext]}"
+    style="${EXT_TO_RENDER_STYLE[$ext]}"
     if [[ -z "$style" ]];then
-        _error "Cannot render '$ext'. Define \$EXT_TO_STYLE[$ext]."
+        _error "Cannot render '$ext'. Define \$EXT_TO_RENDER_STYLE[$ext]."
     fi
     render="${RENDER_STYLE[$style]}"
     if [[ -z "$render" ]];then

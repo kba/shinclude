@@ -1,13 +1,24 @@
-# #### `$EXT_TO_STYLE`
+# #### `$EXT_TO_RENDER_STYLE`
 #
-# Associative array of file extesions (w/o dot) to language.
+# Associative array of file extesions (w/o dot) to render method.
 #
-#       EXT_TO_STYLE[md]="markdown"
-#       EXT_TO_STYLE[markdown]="markdown"
-#       EXT_TO_STYLE[ronn]="markdown"
+#       EXT_TO_RENDER_STYLE[md]="cat"
+#       EXT_TO_RENDER_STYLE[sh]="doublepound"
+#       EXT_TO_RENDER_STYLE[bash]="doublepound"
 #
-typeset -A EXT_TO_STYLE
-export EXT_TO_STYLE=()
+typeset -A EXT_TO_RENDER_STYLE
+export EXT_TO_RENDER_STYLE=()
+
+# #### `$EXT_TO_COMMENT_STYLE`
+#
+# Associative array of file extesions (w/o dot) to comment style.
+#
+#       EXT_TO_COMMENT_STYLE[md]="markdown"
+#       EXT_TO_COMMENT_STYLE[markdown]="markdown"
+#       EXT_TO_COMMENT_STYLE[ronn]="markdown"
+#
+typeset -A EXT_TO_COMMENT_STYLE
+export EXT_TO_COMMENT_STYLE=()
 
 # #### `$COMMENT_STYLE_START`
 #
@@ -37,6 +48,58 @@ typeset -A RENDER_STYLE
 export RENDER_STYLE=()
 
 ##
+## ## RENDER STYLES
+##
+
+## ### cat
+##
+## * Echo the lines. Just like INCLUDE
+##
+## File Extensions:
+##
+## * `*.md`
+## * `*.markdown`
+## * `*.ronn`
+## * `*.txt`
+##
+RENDER_STYLE[cat]="cat '%s'"
+EXT_TO_RENDER_STYLE[md]="cat"
+EXT_TO_RENDER_STYLE[markdown]="cat"
+EXT_TO_RENDER_STYLE[ronn]="cat"
+EXT_TO_RENDER_STYLE[txt]="cat"
+
+## ### doublepound
+##
+##   * Prefix comments to render with `##`
+##   * Replace `__CURLINE__` with current line
+##   * Replace `__CURLINE__` with current line
+##
+## File Extensions:
+##
+##   * `*.sh`
+##   * `*.bash`
+##
+RENDER_STYLE[doublepound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '%s'|grep '^\\s*##'|sed 's/^\\s*## \\\?//'"
+EXT_TO_RENDER_STYLE[sh]="doublepound"
+EXT_TO_RENDER_STYLE[zsh]="doublepound"
+EXT_TO_RENDER_STYLE[bash]="doublepound"
+
+## ### jade
+##
+## Render style:
+##
+##   * Run through `jade` template engine
+##
+## Extensions:
+##
+##   * `*.jade`
+##   * `*.pug`
+##
+RENDER_STYLE[jade]="jade -P < '%s'|sed -n '2,\$p'"
+EXT_TO_RENDER_STYLE[jade]="jade"
+EXT_TO_RENDER_STYLE[pug]="jade"
+
+##
 ## ## COMMENT STYLES
 ##
 
@@ -55,8 +118,8 @@ COMMENT_STYLE_END[xml]="-->"
 ## * `.html`
 ## * `*.xml`
 ##
-EXT_TO_STYLE[html]='xml'
-EXT_TO_STYLE[xml]='xml'
+EXT_TO_COMMENT_STYLE[html]='xml'
+EXT_TO_COMMENT_STYLE[xml]='xml'
 
 ## ### markdown
 ##
@@ -67,18 +130,14 @@ EXT_TO_STYLE[xml]='xml'
 ##
 COMMENT_STYLE_START[markdown]="[]:"
 COMMENT_STYLE_END[markdown]=""
-## Render style:
-## * Just like INCLUDE
-##
-RENDER_STYLE[markdown]="cat '%s'"
 ##
 ## Extensions:
 ##   * `*.ronn`
 ##   * `*.md`
 ##
-EXT_TO_STYLE[md]='markdown'
-EXT_TO_STYLE[markdown]='markdown'
-EXT_TO_STYLE[ronn]='markdown'
+EXT_TO_COMMENT_STYLE[md]='markdown'
+EXT_TO_COMMENT_STYLE[markdown]='markdown'
+EXT_TO_COMMENT_STYLE[ronn]='markdown'
 
 ## ### pound
 ##
@@ -89,11 +148,6 @@ EXT_TO_STYLE[ronn]='markdown'
 ##
 COMMENT_STYLE_START[pound]="#"
 COMMENT_STYLE_END[pound]=""
-## Render style:
-##
-##   * Prefix comments to render with `##`
-##
-RENDER_STYLE[pound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '%s'|grep '^\\s*##'|sed 's/^\\s*## \\\?//'"
 ## Extensions:
 ##
 ##   * `*.sh`
@@ -104,13 +158,13 @@ RENDER_STYLE[pound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '%s'|grep '^\\s*
 ##   * `*.PL`
 ##   * `*.coffee`
 ##
-EXT_TO_STYLE[sh]='pound'
-EXT_TO_STYLE[bash]='pound'
-EXT_TO_STYLE[zsh]='pound'
-EXT_TO_STYLE[py]='pound'
-EXT_TO_STYLE[pl]='pound'
-EXT_TO_STYLE[PL]='pound'
-EXT_TO_STYLE[coffee]='pound'
+EXT_TO_COMMENT_STYLE[sh]='pound'
+EXT_TO_COMMENT_STYLE[bash]='pound'
+EXT_TO_COMMENT_STYLE[zsh]='pound'
+EXT_TO_COMMENT_STYLE[py]='pound'
+EXT_TO_COMMENT_STYLE[pl]='pound'
+EXT_TO_COMMENT_STYLE[PL]='pound'
+EXT_TO_COMMENT_STYLE[coffee]='pound'
 
 ## ### slashstar
 ##
@@ -125,9 +179,9 @@ EXT_TO_STYLE[coffee]='pound'
 ## * `*.cxx`
 ## * `*.java`
 ##
-EXT_TO_STYLE[cpp]='slashstar'
-EXT_TO_STYLE[cxx]='slashstar'
-EXT_TO_STYLE[java]='slashstar'
+EXT_TO_COMMENT_STYLE[cpp]='slashstar'
+EXT_TO_COMMENT_STYLE[cxx]='slashstar'
+EXT_TO_COMMENT_STYLE[java]='slashstar'
 COMMENT_STYLE_START[slashstar]="/*"
 COMMENT_STYLE_END[slashstar]="*/"
 
@@ -146,8 +200,8 @@ COMMENT_STYLE_END[doubleslash]=""
 ##   * `*.c`
 ##   * `*.js`
 ##
-EXT_TO_STYLE[js]='doubleslash'
-EXT_TO_STYLE[c]='doubleslash'
+EXT_TO_COMMENT_STYLE[js]='doubleslash'
+EXT_TO_COMMENT_STYLE[c]='doubleslash'
 
 ## ### doublequote
 ##
@@ -163,7 +217,7 @@ COMMENT_STYLE_END[doubleslash]=""
 ##
 ## * `*.vim`
 ##
-EXT_TO_STYLE[vim]='doublequote'
+EXT_TO_COMMENT_STYLE[vim]='doublequote'
 
 ## ### doubleslashbang
 ##
@@ -174,31 +228,26 @@ EXT_TO_STYLE[vim]='doublequote'
 ##
 COMMENT_STYLE_START[doubleslashbang]="//!"
 COMMENT_STYLE_END[doubleslashbang]=""
-## Render style:
-##
-##   * Run through `jade` template engine
-##
-RENDER_STYLE[jade]="jade -P < '%s'|sed -n '2,\$p'"
 ## Extensions:
 ##
 ##   * `*.jade`
 ##   * `*.pug`
 ##
-EXT_TO_STYLE[jade]='doubleslashbang'
-EXT_TO_STYLE[pug]='doubleslashbang'
+EXT_TO_COMMENT_STYLE[jade]='doubleslashbang'
+EXT_TO_COMMENT_STYLE[pug]='doubleslashbang'
 
-# ### _detect_style
+# ### _detect_comment_style
 # 
 # Detect comment style by file extension. Default: 'xml'
 #
-#     _detect_style "foo.md"    # -> 'markdown'
-#     _detect_style "foo.pl"    # -> 'pound'
+#     _detect_comment_style "foo.md"    # -> 'markdown'
+#     _detect_comment_style "foo.pl"    # -> 'pound'
 #
-_detect_style() {
+_detect_comment_style() {
     local ext
     ext=${1##*.}
-    if [[ ! -z "${EXT_TO_STYLE[$ext]}" ]];then
-        echo "${EXT_TO_STYLE[$ext]}"
+    if [[ ! -z "${EXT_TO_COMMENT_STYLE[$ext]}" ]];then
+        echo "${EXT_TO_COMMENT_STYLE[$ext]}"
     else
         _debug 0 "Unknown extension $ext, defaulting to 'xml'"
         echo 'xml'

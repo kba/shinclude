@@ -171,7 +171,7 @@ _parse_args() {
         exit 1
     fi
 
-    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_style "$infile")}
+    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$infile")}
     if [[ -z "$COMMENT_STYLE" ]];then
         _error "Unable to detect comment style."
     fi
