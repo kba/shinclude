@@ -19,50 +19,50 @@ Include file contents or ouptut of shell commands in a code/markup comments
 
 
 <!-- BEGIN-MARKDOWN-TOC -->
-* [INSTALL](#install)
-* [OPTIONS](#options)
-* [-h](#-h)
-* [--help](#--help)
-* [-i](#-i)
-* [--inplace](#--inplace)
-* [-p PATH](#-p-path)
-* [--shinclude-path PATH](#--shinclude-path-path)
-* [-c COMMENT_STYLE](#-c-comment_style)
-* [--comment-style COMMENT_STYLE](#--comment-style-comment_style)
-* [-cs COMMENT_START](#-cs-comment_start)
-* [--comment-start COMMENT_START](#--comment-start-comment_start)
-* [-ce COMMENT_END](#-ce-comment_end)
-* [--comment-end COMMENT_END](#--comment-end-comment_end)
-* [-d](#-d)
-* [--info](#--info)
-* [-dd](#-dd)
-* [--debug](#--debug)
-* [-dd](#-dd-1)
-* [--debug](#--debug-1)
-* [BLOCK DIRECTIVES](#block-directives)
-* [EVAL](#eval)
-* [INCLUDE](#include)
-* [RENDER](#render)
-* [MARKDOWN-TOC](#markdown-toc)
-* [Second-Level Heading](#second-level-heading)
-* [Second-Level Heading](#second-level-heading-1)
-* [`$MARKDOWN_TOC_INDENT`](#markdown_toc_indent)
-* [`$HEADING_REGEX`](#heading_regex)
-* [Heading-to-Link algorithm](#heading-to-link-algorithm)
-* [DIAGNOSTICS](#diagnostics)
-* [`$LOGLEVEL`](#loglevel)
-* [RENDER STYLES](#render-styles)
-* [cat](#cat)
-* [doublepound](#doublepound)
-* [jade](#jade)
-* [COMMENT STYLES](#comment-styles)
-* [xml](#xml)
-* [markdown](#markdown)
-* [pound](#pound)
-* [slashstar](#slashstar)
-* [doubleslash](#doubleslash)
-* [doublequote](#doublequote)
-* [doubleslashbang](#doubleslashbang)
+		* [INSTALL](#install)
+		* [OPTIONS](#options)
+			* [-h](#-h)
+			* [--help](#--help)
+			* [-i](#-i)
+			* [--inplace](#--inplace)
+			* [-p PATH](#-p-path)
+			* [--shinclude-path PATH](#--shinclude-path-path)
+			* [-c COMMENT_STYLE](#-c-comment_style)
+			* [--comment-style COMMENT_STYLE](#--comment-style-comment_style)
+			* [-cs COMMENT_START](#-cs-comment_start)
+			* [--comment-start COMMENT_START](#--comment-start-comment_start)
+			* [-ce COMMENT_END](#-ce-comment_end)
+			* [--comment-end COMMENT_END](#--comment-end-comment_end)
+			* [-d](#-d)
+			* [--info](#--info)
+			* [-dd](#-dd)
+			* [--debug](#--debug)
+			* [-dd](#-dd-1)
+			* [--debug](#--debug-1)
+		* [BLOCK DIRECTIVES](#block-directives)
+			* [EVAL](#eval)
+			* [INCLUDE](#include)
+			* [RENDER](#render)
+			* [MARKDOWN-TOC](#markdown-toc)
+		* [Second-Level Heading](#second-level-heading)
+		* [Second-Level Heading](#second-level-heading-1)
+				* [`$MARKDOWN_TOC_INDENT`](#markdown_toc_indent)
+				* [`$HEADING_REGEX`](#heading_regex)
+				* [Heading-to-Link algorithm](#heading-to-link-algorithm)
+		* [DIAGNOSTICS](#diagnostics)
+			* [`$LOGLEVEL`](#loglevel)
+		* [RENDER STYLES](#render-styles)
+			* [cat](#cat)
+			* [doublepound](#doublepound)
+			* [jade](#jade)
+		* [COMMENT STYLES](#comment-styles)
+			* [xml](#xml)
+			* [markdown](#markdown)
+			* [pound](#pound)
+			* [slashstar](#slashstar)
+			* [doubleslash](#doubleslash)
+			* [doublequote](#doublequote)
+			* [doubleslashbang](#doubleslashbang)
 
 <!-- END-MARKDOWN-TOC -->
 
@@ -265,14 +265,16 @@ Heading used to detect and tokenize headings.
 
 #### Heading-to-Link algorithm
 
-* Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
-* Link target: Start with Link Text
-  * lowercase
-  * remove `$`, <code>`</code>, `(`, `)`, `.`
-  * Replace all non-alphanumeric characters with `-`
-  * If link target not used previously
-    * then set `EXISTING_HEADINGS[$link_target]` to `1`
-    * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
+
+Link target: Start with Link Text
+
+* lowercase
+* remove `$`, <code>`</code>, `(`, `)`, `.`
+* Replace all non-alphanumeric characters with `-`
+* If link target not used previously
+  * then set `EXISTING_HEADINGS[$link_target]` to `1`
+  * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
 
 <!-- END-RENDER -->
 

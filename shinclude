@@ -487,15 +487,15 @@ _heading_to_toc() {
     _debug 2 "MARKDOWN-TOC: Link Text: '$link_text' Link level: ${#pounds}"
     ## Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
     ##
-    indent=${indent//\#/$MARKDOWN_TOC_INDENT}
+    indent=${pounds//\#/$MARKDOWN_TOC_INDENT}
     ## Link target: Start with Link Text
     ##
-    ##   * lowercase
-    ##   * remove `$`, <code>`</code>, `(`, `)`, `.`
-    ##   * Replace all non-alphanumeric characters with `-`
-    ##   * If link target not used previously
-    ##     * then set `EXISTING_HEADINGS[$link_target]` to `1`
-    ##     * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+    ## * lowercase
+    ## * remove `$`, <code>`</code>, `(`, `)`, `.`
+    ## * Replace all non-alphanumeric characters with `-`
+    ## * If link target not used previously
+    ## * then set `EXISTING_HEADINGS[$link_target]` to `1`
+    ## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
     link_target="${link_text,,}"
     link_target="${link_target//[\$\`()\.]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"

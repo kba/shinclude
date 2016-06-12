@@ -199,12 +199,12 @@ Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
 
 Link target: Start with Link Text
 
-  * lowercase
-  * remove `$`, <code>`</code>, `(`, `)`, `.`
-  * Replace all non-alphanumeric characters with `-`
-  * If link target not used previously
-    * then set `EXISTING_HEADINGS[$link_target]` to `1`
-    * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+* lowercase
+* remove `$`, <code>`</code>, `(`, `)`, `.`
+* Replace all non-alphanumeric characters with `-`
+* If link target not used previously
+* then set `EXISTING_HEADINGS[$link_target]` to `1`
+* else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
 
 []: END-RENDER
 
