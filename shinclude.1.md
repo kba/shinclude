@@ -158,6 +158,8 @@ Runs on **first** pass
 
 ### MARKDOWN-TOC
 
+([source](./src/block-MARKDOWN-TOC.bash#L3), [test](./test/MARKDOWN-TOC))
+
 Reads in the file and outputs a table of contents of
 the markdown headings.
 
@@ -186,6 +188,23 @@ Runs on first pass
 #### `$MARKDOWN_TOC_INDENT`
 
 String to indent a single level. Default: `\t`
+
+#### `$HEADING_REGEX`
+
+Heading used to detect and tokenize headings.
+
+#### Heading-to-Link algorithm
+
+Indentation: Number of leading `#` * `$MARKDOWN_TOC_INDENT`
+
+Link target: Start with Link Text
+
+  * lowercase
+  * remove `$`, <code>`</code>, `(`, `)`, `.`
+  * Replace all non-alphanumeric characters with `-`
+  * If link target not used previously
+    * then set `EXISTING_HEADINGS[$link_target]` to `1`
+    * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
 
 []: END-RENDER
 

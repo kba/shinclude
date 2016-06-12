@@ -192,6 +192,9 @@ Renders a file to markdown using a \fIshell expression\fR\.
 Runs on \fBfirst\fR pass
 .
 .SS "MARKDOWN\-TOC"
+(source \fI\./src/block\-MARKDOWN\-TOC\.bash#L3\fR, test \fI\./test/MARKDOWN\-TOC\fR)
+.
+.P
 Reads in the file and outputs a table of contents of the markdown headings\.
 .
 .P
@@ -239,6 +242,37 @@ Runs on first pass
 .
 .P
 String to indent a single level\. Default: \fB\et\fR
+.
+.P
+Heading used to detect and tokenize headings\.
+.
+.P
+Indentation: Number of leading \fB#\fR * \fB$MARKDOWN_TOC_INDENT\fR
+.
+.P
+Link target: Start with Link Text
+.
+.IP "\(bu" 4
+lowercase
+.
+.IP "\(bu" 4
+remove \fB$\fR, \fB\fB</code>,\fR(\fB,\fR)\fB,\fR\.`\fR
+.
+.IP "\(bu" 4
+Replace all non\-alphanumeric characters with \fB\-\fR
+.
+.IP "\(bu" 4
+.
+.IP "\(bu" 4
+then set \fBEXISTING_HEADINGS[$link_target]\fR to \fB1\fR
+.
+.IP "\(bu" 4
+else increase \fBEXISTING_HEADINGS[$link_target]\fR by one and concatenate
+.
+.IP "" 0
+
+.
+.IP "" 0
 .
 .SH "RENDER STYLES"
 .
