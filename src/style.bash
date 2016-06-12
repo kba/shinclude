@@ -93,7 +93,7 @@ COMMENT_STYLE_END[pound]=""
 ##
 ##   * Prefix comments to render with `##`
 ##
-RENDER_STYLE[pound]="grep '^\\s*##' '%s'|sed 's/^\\s*## \\\?//'"
+RENDER_STYLE[pound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '%s'|grep '^\\s*##'|sed 's/^\\s*## \\\?//'"
 ## Extensions:
 ##
 ##   * `*.sh`
