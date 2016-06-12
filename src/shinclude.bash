@@ -129,20 +129,29 @@ _parse_args() {
                 ##
                 COMMENT_END="$2"; shift
                 ;;
-            -d|--debug)
+            -d|--info)
                 ## ### -d
-                ## ### --debug
+                ## ### --info
                 ##
                 ## Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
                 ##
                 # shellcheck disable=2034
                 LOGLEVEL=1
                 ;;
-            -dd|--trace) 
+            -dd|--debug) 
                 ## ### -dd
-                ## ### --trace
+                ## ### --debug
                 ##
-                ## Enable trace logging (`$LOGLEVEL=2`). Prints every statement the shell executes.
+                ## Enable trace logging (`$LOGLEVEL=2`).
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=2
+                ;;
+            -ddd|--trace) 
+                ## ### -dd
+                ## ### --debug
+                ##
+                ## Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
                 ##
                 # shellcheck disable=2034
                 LOGLEVEL=2
