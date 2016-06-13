@@ -9,18 +9,15 @@ shinclude(1) -- include directives for code/markup comments
 []: BEGIN-RENDER src/shinclude.bash
 
 ## OPTIONS
-### -h
-### --help
+### -h, --help
 
 help
 
-### -i
-### --inplace
+### -i, --inplace
 
 Edit the file in-place
 
-### -p PATH
-### --shinclude-path PATH
+### -p, --shinclude-path PATH
 
 Add path to path to look for `INCLUDE` and `RENDER`.
 
@@ -28,37 +25,31 @@ Can be repeated to add multiple paths.
 
 Default: `("$PWD")`
 
-### -c COMMENT_STYLE
-### --comment-style COMMENT_STYLE
+### -c, --comment-style COMMENT_STYLE
 
 Comment style. See [COMMENT STYLES](#comment-styles).
 
-### -cs COMMENT_START
-### --comment-start COMMENT_START
+### -cs, --comment-start COMMENT_START
 
  Comment start. Overrides language-specific comment start.
 
 See [COMMENT STYLES](#comment-styles).
 
-### -ce COMMENT_END
-### --comment-end COMMENT_END
+### -ce, --comment-end COMMENT_END
 
  Comment end. Overrides language-specific comment end.
 
 See [COMMENT STYLES](#comment-styles).
 
-### -d
-### --info
+### -d, --info
 
 Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
 
-### -dd
-### --debug
+### -dd, --debug
 
 Enable trace logging (`$LOGLEVEL=2`).
 
-### -ddd
-### --trace
+### -ddd, --trace
 
 Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
 
@@ -202,7 +193,7 @@ Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`
 Link target: Start with Link Text
 
 * lowercase
-* remove `` $ ` ( ) . ``
+* remove `` $ ` ( ) . ,``
 * Replace all non-alphanumeric characters with `-`
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`

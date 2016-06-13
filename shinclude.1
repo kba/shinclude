@@ -16,19 +16,13 @@
 .
 .SH "OPTIONS"
 .
-.SS "\-h"
-.
-.SS "\-\-help"
+.SS "\-h, \-\-help"
 help
 .
-.SS "\-i"
-.
-.SS "\-\-inplace"
+.SS "\-i, \-\-inplace"
 Edit the file in\-place
 .
-.SS "\-p PATH"
-.
-.SS "\-\-shinclude\-path PATH"
+.SS "\-p, \-\-shinclude\-path PATH"
 Add path to path to look for \fBINCLUDE\fR and \fBRENDER\fR\.
 .
 .P
@@ -37,40 +31,28 @@ Can be repeated to add multiple paths\.
 .P
 Default: \fB("$PWD")\fR
 .
-.SS "\-c COMMENT_STYLE"
-.
-.SS "\-\-comment\-style COMMENT_STYLE"
+.SS "\-c, \-\-comment\-style COMMENT_STYLE"
 Comment style\. See \fICOMMENT STYLES\fR\.
 .
-.SS "\-cs COMMENT_START"
-.
-.SS "\-\-comment\-start COMMENT_START"
+.SS "\-cs, \-\-comment\-start COMMENT_START"
  Comment start\. Overrides language\-specific comment start\.
 .
 .P
 See \fICOMMENT STYLES\fR\.
 .
-.SS "\-ce COMMENT_END"
-.
-.SS "\-\-comment\-end COMMENT_END"
+.SS "\-ce, \-\-comment\-end COMMENT_END"
  Comment end\. Overrides language\-specific comment end\.
 .
 .P
 See \fICOMMENT STYLES\fR\.
 .
-.SS "\-d"
-.
-.SS "\-\-info"
+.SS "\-d, \-\-info"
 Enable debug logging (\fI\fB$LOGLEVEL=1\fR\fR)
 .
-.SS "\-dd"
-.
-.SS "\-\-debug"
+.SS "\-dd, \-\-debug"
 Enable trace logging (\fB$LOGLEVEL=2\fR)\.
 .
-.SS "\-ddd"
-.
-.SS "\-\-trace"
+.SS "\-ddd, \-\-trace"
 Enable trace logging (\fB$LOGLEVEL=2\fR) and print every statement as it is executed\.
 .
 .SH "BLOCK DIRECTIVES"
@@ -256,7 +238,7 @@ Link target: Start with Link Text
 lowercase
 .
 .IP "\(bu" 4
-remove \fB$ ` ( ) \.\fR
+remove \fB$ ` ( ) \. ,\fR
 .
 .IP "\(bu" 4
 Replace all non\-alphanumeric characters with \fB\-\fR

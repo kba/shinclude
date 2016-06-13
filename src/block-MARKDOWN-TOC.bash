@@ -62,13 +62,13 @@ _heading_to_toc() {
     ## Link target: Start with Link Text
     ##
     ## * lowercase
-    ## * remove `` $ ` ( ) . ``
+    ## * remove `` $ ` ( ) . ,``
     ## * Replace all non-alphanumeric characters with `-`
     ## * If link target not used previously
     ## * then set `EXISTING_HEADINGS[$link_target]` to `1`
     ## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
     link_target="${link_text,,}"
-    link_target="${link_target//[\$\`()\.]/}"
+    link_target="${link_target//[\$\`()\.,]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"
     if [[ -z ${EXISTING_HEADINGS[$link_target]} ]];then
         EXISTING_HEADINGS["$link_target"]=1

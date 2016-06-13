@@ -89,24 +89,21 @@ _parse_args() {
     while [[ "$1" != '-' && "$1" = -* ]];do
         case "$1" in
             -h)
-                ## ### -h
-                ## ### --help
+                ## ### -h, --help
                 ##
                 ## help
                 ##
                 usage
                 exit ;;
             -i|--inplace)
-                ## ### -i
-                ## ### --inplace
+                ## ### -i, --inplace
                 ##
                 ## Edit the file in-place
                 ##
                 IN_PLACE=true 
                 ;;
             -p|--shinclude-path)
-                ## ### -p PATH
-                ## ### --shinclude-path PATH
+                ## ### -p, --shinclude-path PATH
                 ##
                 ## Add path to path to look for `INCLUDE` and `RENDER`.
                 ##
@@ -117,16 +114,14 @@ _parse_args() {
                 SHINCLUDE_PATH+=("$2"); shift
                 ;;
             -c|--coment-style)
-                ## ### -c COMMENT_STYLE
-                ## ### --comment-style COMMENT_STYLE
+                ## ### -c, --comment-style COMMENT_STYLE
                 ##
                 ## Comment style. See [COMMENT STYLES](#comment-styles).
                 ##
                 COMMENT_STYLE="$2"; shift
                 ;;
             -cs|--comment-start)
-                ## ### -cs COMMENT_START
-                ## ### --comment-start COMMENT_START
+                ## ### -cs, --comment-start COMMENT_START
                 ##
                 ## Comment start. Overrides language-specific comment start.
                 ##
@@ -135,8 +130,7 @@ _parse_args() {
                 COMMENT_START="$2"; shift
                 ;;
             -ce|--comment-end)
-                ## ### -ce COMMENT_END
-                ## ### --comment-end COMMENT_END
+                ## ### -ce, --comment-end COMMENT_END
                 ##
                 ## Comment end. Overrides language-specific comment end.
                 ##
@@ -145,8 +139,7 @@ _parse_args() {
                 COMMENT_END="$2"; shift
                 ;;
             -d|--info)
-                ## ### -d
-                ## ### --info
+                ## ### -d, --info
                 ##
                 ## Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
                 ##
@@ -154,8 +147,7 @@ _parse_args() {
                 LOGLEVEL=1
                 ;;
             -dd|--debug) 
-                ## ### -dd
-                ## ### --debug
+                ## ### -dd, --debug
                 ##
                 ## Enable trace logging (`$LOGLEVEL=2`).
                 ##
@@ -163,8 +155,7 @@ _parse_args() {
                 LOGLEVEL=2
                 ;;
             -ddd|--trace) 
-                ## ### -ddd
-                ## ### --trace
+                ## ### -ddd, --trace
                 ##
                 ## Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
                 ##
