@@ -2,6 +2,9 @@
 ##
 ## Renders a file to markdown using a [shell expression](#render_ext).
 ##
+## The render method is determined by the file extension, see 
+## [RENDER STYLES](#render-styles) for a list of render methods
+##
 ## Runs on **first** pass
 ##
 typeset -A BLOCK_PASS
