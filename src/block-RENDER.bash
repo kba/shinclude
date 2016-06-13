@@ -12,6 +12,7 @@ typeset -A BLOCK_PASS
 BLOCK_PASS[RENDER]=1
 
 _block_RENDER() {
+    local renderfile renderpath
     renderfile="$1"
     ext=${renderfile##*.}
     _debug 2 "RENDER: extension == '$ext'"
@@ -25,11 +26,13 @@ _block_RENDER() {
     fi
     # shellcheck disable=2059
     for dir in "${SHINCLUDE_PATH[@]}";do
-        _debug 2 "RENDER: Trying $dir/$renderfile"
-        if [[ -e "$dir/$renderfile" ]];then
-            _debug 1 "RENDER: Rendering $dir/$renderfile"
-            cmd=$(printf "${RENDER_STYLE[$style]}" "$dir/$renderfile")
-            _debug 2 "RENDER: command == '$cmd'"
+        renderpath="$dir/$renderfile"
+        _debug 2 "RENDER: Trying $renderpath"
+        if [[ -e "$renderpath" ]];then
+            _debug 1 "RENDER: Rendering $renderpath"
+            cmd="${RENDER_STYLE[$style]}"
+            cmd=${cmd//__FILENAME__/$renderpath}
+            _debug 1 "RENDER: command == '$cmd'"
             output=$(eval "$cmd")
             if (( $? > 0 ));then
                 _error "Rendering failed: $output"

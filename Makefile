@@ -30,7 +30,7 @@ $(SCRIPT): $(SCRIPT).bootstrap
 
 # Build man page (Markdown)
 $(SCRIPT).1.md: $(SCRIPT)
-	./$(SCRIPT) doc/$(SCRIPT).1.md > "$@"
+	./$(SCRIPT) -dd doc/$(SCRIPT).1.md > "$@"
 
 # Build man page (roff)
 $(SCRIPT).1: $(SCRIPT).1.md

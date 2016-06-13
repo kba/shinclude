@@ -62,7 +62,7 @@ export RENDER_STYLE=()
 ## * `*.ronn`
 ## * `*.txt`
 ##
-RENDER_STYLE[cat]="cat '%s'"
+RENDER_STYLE[cat]="cat '__FILENAME__'"
 EXT_TO_RENDER_STYLE[md]="cat"
 EXT_TO_RENDER_STYLE[markdown]="cat"
 EXT_TO_RENDER_STYLE[ronn]="cat"
@@ -79,7 +79,9 @@ EXT_TO_RENDER_STYLE[txt]="cat"
 ##   * `*.sh`
 ##   * `*.bash`
 ##
-RENDER_STYLE[doublepound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '%s'|grep '^\\s*##'|sed 's/^\\s*## \\\?//'"
+RENDER_STYLE[doublepound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '__FILENAME__' \
+    |grep '^\\s*##' \
+    |sed 's/^\\s*##\s\?//'"
 EXT_TO_RENDER_STYLE[sh]="doublepound"
 EXT_TO_RENDER_STYLE[zsh]="doublepound"
 EXT_TO_RENDER_STYLE[bash]="doublepound"
@@ -95,7 +97,7 @@ EXT_TO_RENDER_STYLE[bash]="doublepound"
 ##   * `*.jade`
 ##   * `*.pug`
 ##
-RENDER_STYLE[jade]="jade -P < '%s'|sed -n '2,\$p'"
+RENDER_STYLE[jade]="jade -p '__FILENAME__' -P < '__FILENAME__'|sed -n '2,\$p'"
 EXT_TO_RENDER_STYLE[jade]="jade"
 EXT_TO_RENDER_STYLE[pug]="jade"
 
