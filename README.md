@@ -5,14 +5,16 @@ Include file contents or ouptut of shell commands in a code/markup comments
 [![Build Status](https://travis-ci.org/kba/shinclude.svg?branch=master)](https://travis-ci.org/kba/shinclude)
 
 <!-- BEGIN-BANNER -f "DOS Rebel" -i "\t" shinclude -->
-	         █████       ███                      ████                 █████         
-	        ░░███       ░░░                      ░░███                ░░███          
-	  █████  ░███████   ████  ████████    ██████  ░███  █████ ████  ███████   ██████ 
+	         █████       ███                      ████                 █████
+	        ░░███       ░░░                      ░░███                ░░███
+	  █████  ░███████   ████  ████████    ██████  ░███  █████ ████  ███████   ██████
 	 ███░░   ░███░░███ ░░███ ░░███░░███  ███░░███ ░███ ░░███ ░███  ███░░███  ███░░███
-	░░█████  ░███ ░███  ░███  ░███ ░███ ░███ ░░░  ░███  ░███ ░███ ░███ ░███ ░███████ 
-	 ░░░░███ ░███ ░███  ░███  ░███ ░███ ░███  ███ ░███  ░███ ░███ ░███ ░███ ░███░░░  
-	 ██████  ████ █████ █████ ████ █████░░██████  █████ ░░████████░░████████░░██████ 
-	░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  ░░░░░   ░░░░░░░░  ░░░░░░░░  ░░░░░░  
+	░░█████  ░███ ░███  ░███  ░███ ░███ ░███ ░░░  ░███  ░███ ░███ ░███ ░███ ░███████
+	 ░░░░███ ░███ ░███  ░███  ░███ ░███ ░███  ███ ░███  ░███ ░███ ░███ ░███ ░███░░░
+	 ██████  ████ █████ █████ ████ █████░░██████  █████ ░░████████░░████████░░██████
+	░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  ░░░░░   ░░░░░░░░  ░░░░░░░░  ░░░░░░
+
+
 <!-- END-BANNER -->
 
 <!-- BEGIN-MARKDOWN-TOC -->
@@ -36,6 +38,10 @@ Include file contents or ouptut of shell commands in a code/markup comments
 		* [`$HEADING_REGEX`](#heading_regex)
 		* [Heading-to-Link algorithm](#heading-to-link-algorithm)
 	* [BANNER](#banner)
+		* [Options](#options-1)
+			* [-f, --font FONT](#-f---font-font)
+			* [-i, --indent INDENT](#-i---indent-indent)
+			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after)
 * [DIAGNOSTICS](#diagnostics)
 	* [`$LOGLEVEL`](#loglevel)
 * [RENDER STYLES](#render-styles)
@@ -50,6 +56,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [doubleslash](#doubleslash)
 	* [doublequote](#doublequote)
 	* [doubleslashbang](#doubleslashbang)
+
 <!-- END-MARKDOWN-TOC -->
 
 ## INSTALL
@@ -103,6 +110,8 @@ Enable trace logging (`$LOGLEVEL=2`).
 ### -ddd, --trace
 
 Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-INCLUDE doc/SYNTAX.md -->
@@ -117,6 +126,8 @@ Fencing comments **must** start at the start of the line.
     <begin-line> ::= <com-start> <spc> BEGIN-<block-type> <block-arg>+ <spc>?  <com-end>?
     <end-line> ::= <com-start> <spc> END-<block-type> <spc>? <com-end>?
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
+
+
 <!-- END-INCLUDE -->
 
 ## BLOCK DIRECTIVES
@@ -144,6 +155,8 @@ will be transformed to
     1723  4100 36080 total
 
     # END-EVAL
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-INCLUDE.bash -->
@@ -160,19 +173,19 @@ will be transformed to
 
     # BEGIN-INCLUDE LICENSE
     The MIT License (MIT)
-    
+
     Copyright (c) 2016 Konstantin Baierer
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -181,6 +194,8 @@ will be transformed to
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     # END-INCLUDE
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-RENDER.bash -->
@@ -188,10 +203,12 @@ will be transformed to
 
 Renders a file to markdown using a [shell expression](#render_ext).
 
-The render method is determined by the file extension, see 
+The render method is determined by the file extension, see
 [RENDER STYLES](#render-styles) for a list of render methods
 
 Runs on **first** pass
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-MARKDOWN-TOC.bash -->
@@ -246,6 +263,8 @@ Link target: Start with Link Text
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`
 * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-BANNER.bash -->
@@ -263,13 +282,29 @@ will be transformed to
 
     # BEGIN-BANNER -f standard -w <pre> </pre> foo
     <pre>
-      __             
-     / _| ___   ___  
-    | |_ / _ \ / _ \ 
+      __
+     / _| ___   ___
+    | |_ / _ \ / _ \
     |  _| (_) | (_) |
-    |_|  \___/ \___/ 
+    |_|  \___/ \___/
     </pre>
     # END-EVAL
+
+
+#### Options
+##### -f, --font FONT
+
+Specify font. See `/usr/share/figlet` for a list of fonts.
+
+##### -i, --indent INDENT
+
+Specify indent. Example: `-i "\t"`, `-i '    '`
+
+##### -w, --wrap BEFORE AFTER
+
+Wrap in lines. E.g `-w '<pre>' '</pre'`
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/logging.bash -->
@@ -280,6 +315,8 @@ will be transformed to
 Default: 0
 
 See [`-d`](#-d) and [`-dd`](#-dd)
+
+
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/style.bash -->
@@ -413,4 +450,6 @@ Extensions:
 
   * `*.jade`
   * `*.pug`
+
+
 <!-- END-RENDER -->

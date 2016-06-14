@@ -29,6 +29,8 @@ _error() {
     echo -e "\e[31;1mERROR\e[39;0m $*" >&2
     exit 2
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/style.bash
 # #### `$EXT_TO_RENDER_STYLE`
@@ -288,6 +290,8 @@ _detect_comment_style() {
         echo 'xml'
     fi
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-EVAL.bash
 ## ### EVAL
@@ -322,6 +326,8 @@ _block_EVAL() {
     blockargs="$1"
     printf "%s" "$(eval "${blockargs//\//\/}")" 
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-INCLUDE.bash
 ## ### INCLUDE
@@ -379,6 +385,8 @@ _block_INCLUDE() {
         done
     done
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-RENDER.bash
 ## ### RENDER
@@ -426,6 +434,8 @@ _block_RENDER() {
     done
     _error "No file found in includes: $renderfile"
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-MARKDOWN-TOC.bash
 ## ### MARKDOWN-TOC
@@ -526,6 +536,8 @@ _block_MARKDOWN-TOC() {
     _debug 1 "MARKDOWN-TOC: $(declare -p EXISTING_HEADINGS)"
     # for mdline in
 }
+
+
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-BANNER.bash
 ## ### BANNER
@@ -559,18 +571,37 @@ _draw_banner() {
     prefix=""
     suffix=""
     indent=""
+    ##
+    ## #### Options
     while [[ "$1" = -* ]];do
         case "$1" in 
+            ## ##### -f, --font FONT
+            ##
+            ## Specify font. See `/usr/share/figlet` for a list of fonts.
+            ##
             -f|--font) fontname="$2"; shift ;;
+            ## ##### -i, --indent INDENT
+            ##
+            ## Specify indent. Example: `-i "\t"`, `-i '    '`
+            ##
             -i|--indent) indent="$2"; shift ;;
-            -w*|--wrap) prefix="$2" ; suffix="$3" ; shift ; shift ;;
+            ## ##### -w, --wrap BEFORE AFTER
+            ##
+            ## Wrap in lines. E.g `-w '<pre>' '</pre'`
+            ##
+            -w|--wrap) prefix="$2" ; suffix="$3" ; shift ; shift ;;
             *) _error "Unknown option '$1' passed to BANNER" ;;
         esac
         shift
     done
+    figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+    if [[ $? != 0 ]];then
+        _error "Figlet threw an error!"
+    fi
     [[ ! -z "$prefix" ]] && echo "$prefix"
-    echo -nE "$@" | figlet -w140 -f "$fontname" |grep '[^ ]'|sed "s/^/$indent/"
+    echo -nE "$figletOutput" |grep '[^ ]'|sed "s/^/$indent/"
     [[ ! -z "$suffix" ]] && echo "$suffix"
+    return 0
 }
 
 _block_BANNER() {
@@ -580,6 +611,8 @@ _block_BANNER() {
     _debug 0 "_draw_banner '$1' '$2' '$3' '$4'"
     _draw_banner "$@"
 }
+
+
 # END-INCLUDE
 #-----------------------------------
 
@@ -630,15 +663,17 @@ _parse_lines() {
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
               _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
-              printf "%s%s\n%s\n" "$begin" "$block" "$line"
+              printf "%s%s\n\n%s\n" "$begin" "$block" "$line"
               continue;
           fi
           _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"
           _debug 2 "PASS $pass: RUN $blocktype '$blockargs' '$block'"
-          printf "%s\n%s\n%s\n" \
-              "$begin" \
-              "$("_block_$blocktype" "$blockargs" "$block" "$infile")" \
-              "$line"
+          newblock="$("_block_$blocktype" "$blockargs" "$block" "$infile")"
+          ret=$?
+          if [[ $ret != 0 ]];then
+              _error "$ret: Error running '$blocktype' '$blockargs'"
+          fi
+          printf "%s\n%s\n\n%s\n" "$begin" "$newblock" "$line"
       else
           _debug 2 "PASS $pass: (ign) $line"
           printf "%s\n" "$line"

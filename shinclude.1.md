@@ -51,6 +51,8 @@ Enable trace logging (`$LOGLEVEL=2`).
 ### -ddd, --trace
 
 Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
+
+
 []: END-RENDER
 
 ## BLOCK DIRECTIVES
@@ -67,6 +69,8 @@ Fencing comments **must** start at the start of the line.
     <begin-line> ::= <com-start> <spc> BEGIN-<block-type> <block-arg>+ <spc>?  <com-end>?
     <end-line> ::= <com-start> <spc> END-<block-type> <spc>? <com-end>?
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
+
+
 []: END-INCLUDE
 []: BEGIN-RENDER src/block-EVAL.bash
 ### EVAL
@@ -91,6 +95,8 @@ will be transformed to
     1723  4100 36080 total
 
     # END-EVAL
+
+
 []: END-RENDER
 []: BEGIN-RENDER src/block-INCLUDE.bash
 ### INCLUDE
@@ -127,6 +133,8 @@ will be transformed to
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     # END-INCLUDE
+
+
 []: END-RENDER
 []: BEGIN-RENDER src/block-RENDER.bash
 ### RENDER
@@ -137,6 +145,8 @@ The render method is determined by the file extension, see
 [RENDER STYLES](#render-styles) for a list of render methods
 
 Runs on **first** pass
+
+
 []: END-RENDER
 []: BEGIN-RENDER src/block-MARKDOWN-TOC.bash
 ### MARKDOWN-TOC
@@ -190,6 +200,8 @@ Link target: Start with Link Text
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`
 * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+
+
 []: END-RENDER
 
 []: BEGIN-RENDER src/style.bash
@@ -323,6 +335,8 @@ Extensions:
 
   * `*.jade`
   * `*.pug`
+
+
 []: END-RENDER
 []: BEGIN-RENDER src/logging.bash
 ## DIAGNOSTICS
@@ -332,6 +346,8 @@ Extensions:
 Default: 0
 
 See [`-d`](#-d) and [`-dd`](#-dd)
+
+
 []: END-RENDER
 
 ## AUTHOR
@@ -362,5 +378,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
 []: END-INCLUDE
 
