@@ -65,7 +65,7 @@ Fencing comments \fBmust\fR start at the start of the line\.
 .
 .nf
 
-<block\-type> ::= "EVAL" | "INCLUDE" | "RENDER"
+<block\-type> ::= "EVAL" | "INCLUDE" | "RENDER" | "BANNER" | "MARKDOWN\-TOC"
 <nl> ::= "\en"
 <spc> ::= " "
 <begin\-line> ::= <com\-start> <spc> BEGIN\-<block\-type> <block\-arg>+ <spc>?  <com\-end>?
@@ -256,8 +256,6 @@ then set \fBEXISTING_HEADINGS[$link_target]\fR to \fB1\fR
 else increase \fBEXISTING_HEADINGS[$link_target]\fR by one and concatenate
 .
 .IP "" 0
-.
-.SH "RENDER STYLES"
 .
 .SS "cat"
 .
@@ -509,8 +507,6 @@ Extensions:
 \fB*\.pug\fR
 .
 .IP "" 0
-.
-.SH "DIAGNOSTICS"
 .
 .SS "<code>$LOGLEVEL</code>"
 Default: 0

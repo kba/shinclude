@@ -4,9 +4,8 @@ Include file contents or ouptut of shell commands in a code/markup comments
 
 [![Build Status](https://travis-ci.org/kba/shinclude.svg?branch=master)](https://travis-ci.org/kba/shinclude)
 
-<!-- BEGIN-EVAL echo '<pre>';echo shinclude|figlet -f slant;echo '</pre>' -->
-<!-- END-EVAL -->
-
+<!-- BEGIN-BANNER -f "DOS Rebel" -i "\t" shinclude -->
+<!-- END-BANNER -->
 
 <!-- BEGIN-MARKDOWN-TOC -->
 <!-- END-MARKDOWN-TOC -->
@@ -35,6 +34,9 @@ make install
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-MARKDOWN-TOC.bash -->
+<!-- END-RENDER -->
+
+<!-- BEGIN-RENDER src/block-BANNER.bash -->
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/logging.bash -->

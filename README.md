@@ -4,19 +4,16 @@ Include file contents or ouptut of shell commands in a code/markup comments
 
 [![Build Status](https://travis-ci.org/kba/shinclude.svg?branch=master)](https://travis-ci.org/kba/shinclude)
 
-<!-- BEGIN-EVAL echo '<pre>';echo shinclude|figlet -f slant;echo '</pre>' -->
-
-<pre>
-         __    _            __          __   
-   _____/ /_  (_)___  _____/ /_  ______/ /__ 
-  / ___/ __ \/ / __ \/ ___/ / / / / __  / _ \
- (__  ) / / / / / / / /__/ / /_/ / /_/ /  __/
-/____/_/ /_/_/_/ /_/\___/_/\__,_/\__,_/\___/ 
-                                             
-</pre>
-
-<!-- END-EVAL -->
-
+<!-- BEGIN-BANNER -f "DOS Rebel" -i "\t" shinclude -->
+	         █████       ███                      ████                 █████         
+	        ░░███       ░░░                      ░░███                ░░███          
+	  █████  ░███████   ████  ████████    ██████  ░███  █████ ████  ███████   ██████ 
+	 ███░░   ░███░░███ ░░███ ░░███░░███  ███░░███ ░███ ░░███ ░███  ███░░███  ███░░███
+	░░█████  ░███ ░███  ░███  ░███ ░███ ░███ ░░░  ░███  ░███ ░███ ░███ ░███ ░███████ 
+	 ░░░░███ ░███ ░███  ░███  ░███ ░███ ░███  ███ ░███  ░███ ░███ ░███ ░███ ░███░░░  
+	 ██████  ████ █████ █████ ████ █████░░██████  █████ ░░████████░░████████░░██████ 
+	░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  ░░░░░   ░░░░░░░░  ░░░░░░░░  ░░░░░░  
+<!-- END-BANNER -->
 
 <!-- BEGIN-MARKDOWN-TOC -->
 * [INSTALL](#install)
@@ -38,6 +35,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 		* [`$MARKDOWN_TOC_INDENT`](#markdown_toc_indent)
 		* [`$HEADING_REGEX`](#heading_regex)
 		* [Heading-to-Link algorithm](#heading-to-link-algorithm)
+	* [BANNER](#banner)
 * [DIAGNOSTICS](#diagnostics)
 	* [`$LOGLEVEL`](#loglevel)
 * [RENDER STYLES](#render-styles)
@@ -52,7 +50,6 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [doubleslash](#doubleslash)
 	* [doublequote](#doublequote)
 	* [doubleslashbang](#doubleslashbang)
-
 <!-- END-MARKDOWN-TOC -->
 
 ## INSTALL
@@ -62,7 +59,6 @@ make install
 ```
 
 <!-- BEGIN-RENDER src/shinclude.bash -->
-
 ## OPTIONS
 ### -h, --help
 
@@ -107,29 +103,25 @@ Enable trace logging (`$LOGLEVEL=2`).
 ### -ddd, --trace
 
 Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-INCLUDE doc/SYNTAX.md -->
-
 Included content is fenced by comments that contain
 `BEGIN-<block-type>` and `END-<block-type>` respectively.
 
 Fencing comments **must** start at the start of the line.
 
-    <block-type> ::= "EVAL" | "INCLUDE" | "RENDER"
+    <block-type> ::= "EVAL" | "INCLUDE" | "RENDER" | "BANNER" | "MARKDOWN-TOC"
     <nl> ::= "\n"
     <spc> ::= " "
     <begin-line> ::= <com-start> <spc> BEGIN-<block-type> <block-arg>+ <spc>?  <com-end>?
     <end-line> ::= <com-start> <spc> END-<block-type> <spc>? <com-end>?
     <directive> ::= <begin-line> <nl> <content-line>* <end-line> <nl>
-
 <!-- END-INCLUDE -->
 
 ## BLOCK DIRECTIVES
 
 <!-- BEGIN-RENDER src/block-EVAL.bash -->
-
 ### EVAL
 
 Evaluates the arguments as a shell expression. **BE CAREFUL**
@@ -152,11 +144,9 @@ will be transformed to
     1723  4100 36080 total
 
     # END-EVAL
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-INCLUDE.bash -->
-
 ### INCLUDE
 
 Include data from a file.
@@ -191,11 +181,9 @@ will be transformed to
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     # END-INCLUDE
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-RENDER.bash -->
-
 ### RENDER
 
 Renders a file to markdown using a [shell expression](#render_ext).
@@ -204,11 +192,9 @@ The render method is determined by the file extension, see
 [RENDER STYLES](#render-styles) for a list of render methods
 
 Runs on **first** pass
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-MARKDOWN-TOC.bash -->
-
 ### MARKDOWN-TOC
 
 ([source](./src/block-MARKDOWN-TOC.bash#L3), [test](./test/MARKDOWN-TOC))
@@ -260,11 +246,33 @@ Link target: Start with Link Text
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`
 * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+<!-- END-RENDER -->
 
+<!-- BEGIN-RENDER src/block-BANNER.bash -->
+### BANNER
+
+Shows a banner using FIGlet or TOIlet
+
+BANNER Runs on **first** pass
+
+    # BEGIN-BANNER -f standard -w <pre> </pre> foo
+    # END-BANNER
+
+
+will be transformed to
+
+    # BEGIN-BANNER -f standard -w <pre> </pre> foo
+    <pre>
+      __             
+     / _| ___   ___  
+    | |_ / _ \ / _ \ 
+    |  _| (_) | (_) |
+    |_|  \___/ \___/ 
+    </pre>
+    # END-EVAL
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/logging.bash -->
-
 ## DIAGNOSTICS
 
 ### `$LOGLEVEL`
@@ -272,11 +280,9 @@ Link target: Start with Link Text
 Default: 0
 
 See [`-d`](#-d) and [`-dd`](#-dd)
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/style.bash -->
-
 
 ## RENDER STYLES
 
@@ -407,5 +413,4 @@ Extensions:
 
   * `*.jade`
   * `*.pug`
-
 <!-- END-RENDER -->

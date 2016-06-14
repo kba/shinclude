@@ -1,0 +1,10 @@
+#!/usr/bin/env tsht
+
+use colordiff
+plan 1
+
+BINARY="../../shinclude"
+
+$BINARY -c xml input.md |sed 's/^/#|| /'
+
+# equals_file "$($BINARY -d -c xml input.md)" expected "BANNER works"

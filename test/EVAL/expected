@@ -1,5 +1,3 @@
 []: BEGIN-EVAL echo "Foo!"
-
 Foo!
-
 []: END-EVAL

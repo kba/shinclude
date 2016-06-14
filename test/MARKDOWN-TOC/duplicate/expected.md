@@ -7,7 +7,6 @@
 * [another](#another)
 * [duplicate](#duplicate-2)
 * [another](#another-1)
-
 []: END-MARKDOWN-TOC
 
 ## duplicate

@@ -1,7 +1,5 @@
 Before
 /* BEGIN-INCLUDE to-include */
-
 I should be included
-
 /* END-INCLUDE */
 After

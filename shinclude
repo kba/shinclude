@@ -7,7 +7,6 @@ SHINCLUDE_PATH+=("$PWD")
 
 #-----------------------------------
 # BEGIN-INCLUDE src/logging.bash
-
 ## ## DIAGNOSTICS
 ##
 ## ### `$LOGLEVEL`
@@ -30,10 +29,8 @@ _error() {
     echo -e "\e[31;1mERROR\e[39;0m $*" >&2
     exit 2
 }
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/style.bash
-
 # #### `$EXT_TO_RENDER_STYLE`
 #
 # Associative array of file extesions (w/o dot) to render method.
@@ -291,10 +288,8 @@ _detect_comment_style() {
         echo 'xml'
     fi
 }
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-EVAL.bash
-
 ## ### EVAL
 ##
 ## Evaluates the arguments as a shell expression. **BE CAREFUL**
@@ -327,10 +322,8 @@ _block_EVAL() {
     blockargs="$1"
     printf "%s" "$(eval "${blockargs//\//\/}")" 
 }
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-INCLUDE.bash
-
 ## ### INCLUDE
 ##
 ## Include data from a file.
@@ -386,10 +379,8 @@ _block_INCLUDE() {
         done
     done
 }
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-RENDER.bash
-
 ## ### RENDER
 ##
 ## Renders a file to markdown using a [shell expression](#render_ext).
@@ -435,10 +426,8 @@ _block_RENDER() {
     done
     _error "No file found in includes: $renderfile"
 }
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-MARKDOWN-TOC.bash
-
 ## ### MARKDOWN-TOC
 ##
 ## ([source](./src/block-MARKDOWN-TOC.bash#L__CURLINE__), [test](./test/MARKDOWN-TOC))
@@ -537,7 +526,60 @@ _block_MARKDOWN-TOC() {
     _debug 1 "MARKDOWN-TOC: $(declare -p EXISTING_HEADINGS)"
     # for mdline in
 }
+# END-INCLUDE
+# BEGIN-INCLUDE src/block-BANNER.bash
+## ### BANNER
+##
+## Shows a banner using FIGlet or TOIlet
+##
+## BANNER Runs on **first** pass
+## 
+##     # BEGIN-BANNER -f standard -w <pre> </pre> foo
+##     # END-BANNER
+## 
+## 
+## will be transformed to
+## 
+##     # BEGIN-BANNER -f standard -w <pre> </pre> foo
+##     <pre>
+##       __             
+##      / _| ___   ___  
+##     | |_ / _ \ / _ \ 
+##     |  _| (_) | (_) |
+##     |_|  \___/ \___/ 
+##     </pre>
+##     # END-EVAL
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[BANNER]=1
 
+_draw_banner() {
+    fontname="standard"
+    prefix=""
+    suffix=""
+    indent=""
+    while [[ "$1" = -* ]];do
+        case "$1" in 
+            -f|--font) fontname="$2"; shift ;;
+            -i|--indent) indent="$2"; shift ;;
+            -w*|--wrap) prefix="$2" ; suffix="$3" ; shift ; shift ;;
+            *) _error "Unknown option '$1' passed to BANNER" ;;
+        esac
+        shift
+    done
+    [[ ! -z "$prefix" ]] && echo "$prefix"
+    echo -nE "$@" | figlet -w140 -f "$fontname" |grep '[^ ]'|sed "s/^/$indent/"
+    [[ ! -z "$suffix" ]] && echo "$suffix"
+}
+
+_block_BANNER() {
+    # local blockargs fontname prefix suffix
+    eval set -- "$1"
+    # local IFS=" ";read -r -a blockargs <<< "$1"
+    _debug 0 "_draw_banner '$1' '$2' '$3' '$4'"
+    _draw_banner "$@"
+}
 # END-INCLUDE
 #-----------------------------------
 
@@ -588,12 +630,12 @@ _parse_lines() {
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
               _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
-              printf "%s\n%s\n%s\n" "$begin" "$block" "$line"
+              printf "%s%s\n%s\n" "$begin" "$block" "$line"
               continue;
           fi
           _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"
           _debug 2 "PASS $pass: RUN $blocktype '$blockargs' '$block'"
-          printf "%s\n%s\n\n%s\n" \
+          printf "%s\n%s\n%s\n" \
               "$begin" \
               "$("_block_$blocktype" "$blockargs" "$block" "$infile")" \
               "$line"
