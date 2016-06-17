@@ -1,13 +1,22 @@
-# #### `$EXT_TO_RENDER_STYLE`
+# #### `$EXT_TO_RENDER_PREFIX`
 #
-# Associative array of file extesions (w/o dot) to render method.
+# Associative array of file extesions (w/o dot) to render prefix.
 #
-#       EXT_TO_RENDER_STYLE[md]="cat"
-#       EXT_TO_RENDER_STYLE[sh]="doublepound"
-#       EXT_TO_RENDER_STYLE[bash]="doublepound"
+#       EXT_TO_RENDER_PREFIX[sh]="##"
+#       EXT_TO_RENDER_PREFIX[cpp]="*##"
 #
-typeset -A EXT_TO_RENDER_STYLE
-export EXT_TO_RENDER_STYLE=()
+typeset -A EXT_TO_RENDER_PREFIX
+export EXT_TO_RENDER_PREFIX=()
+
+# #### `$EXT_TO_RENDER_FUNC
+#
+# Associative array of file extesions (w/o dot) to render function.
+#
+#       EXT_TO_RENDER_PREFIX[sh]="prefix"
+#       EXT_TO_RENDER_PREFIX[jade]="jade"
+#
+typeset -A EXT_TO_RENDER_FUNC
+export EXT_TO_RENDER_FUNC=()
 
 # #### `$EXT_TO_COMMENT_STYLE`
 #
@@ -63,10 +72,10 @@ export RENDER_STYLE=()
 ## * `*.txt`
 ##
 RENDER_STYLE[cat]="cat '__FILENAME__'"
-EXT_TO_RENDER_STYLE[md]="cat"
-EXT_TO_RENDER_STYLE[markdown]="cat"
-EXT_TO_RENDER_STYLE[ronn]="cat"
-EXT_TO_RENDER_STYLE[txt]="cat"
+EXT_TO_RENDER_PREFIX[md]="cat"
+EXT_TO_RENDER_PREFIX[markdown]="cat"
+EXT_TO_RENDER_PREFIX[ronn]="cat"
+EXT_TO_RENDER_PREFIX[txt]="cat"
 
 ## ### doublepound
 ##
@@ -79,12 +88,9 @@ EXT_TO_RENDER_STYLE[txt]="cat"
 ##   * `*.sh`
 ##   * `*.bash`
 ##
-RENDER_STYLE[doublepound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '__FILENAME__' \
-    |grep '^\\s*##' \
-    |sed 's/^\\s*##\s\?//'"
-EXT_TO_RENDER_STYLE[sh]="doublepound"
-EXT_TO_RENDER_STYLE[zsh]="doublepound"
-EXT_TO_RENDER_STYLE[bash]="doublepound"
+EXT_TO_RENDER_PREFIX[sh]="##"
+EXT_TO_RENDER_PREFIX[zsh]="##"
+EXT_TO_RENDER_PREFIX[bash]="##"
 
 ## ### jade
 ##
@@ -98,8 +104,8 @@ EXT_TO_RENDER_STYLE[bash]="doublepound"
 ##   * `*.pug`
 ##
 RENDER_STYLE[jade]="jade -p '__FILENAME__' -P < '__FILENAME__'|sed -n '2,\$p'"
-EXT_TO_RENDER_STYLE[jade]="jade"
-EXT_TO_RENDER_STYLE[pug]="jade"
+EXT_TO_RENDER_FUNC[jade]="jade"
+EXT_TO_RENDER_FUNC[pug]="jade"
 
 ##
 ## ## COMMENT STYLES

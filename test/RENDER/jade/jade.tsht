@@ -1,0 +1,4 @@
+#!/usr/bin/env tsht
+BINARY="../../../shinclude"
+
+equals_file "$($BINARY input.cpp)" expected

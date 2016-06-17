@@ -3,5 +3,9 @@
 ## foo
 
 Do some stuff
-// END-RENDER
 
+// END-RENDER
+// BEGIN-RENDER -p '#help:' to-render.sh
+I am help
+
+// END-RENDER
