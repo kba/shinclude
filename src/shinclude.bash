@@ -69,7 +69,7 @@ _parse_lines() {
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
               _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
-              printf "%s%s\n\n%s\n" "$begin" "$block" "$line"
+              printf "%s%s\n%s\n" "$begin" "$block" "$line"
               continue;
           fi
           _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"

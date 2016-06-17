@@ -63,9 +63,7 @@ _draw_banner() {
 }
 
 _block_BANNER() {
-    # local blockargs fontname prefix suffix
     eval set -- "$1"
-    # local IFS=" ";read -r -a blockargs <<< "$1"
     _debug 0 "_draw_banner '$1' '$2' '$3' '$4'"
     _draw_banner "$@"
 }

@@ -30,19 +30,27 @@ _error() {
     exit 2
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/style.bash
-# #### `$EXT_TO_RENDER_STYLE`
+# #### `$EXT_TO_RENDER_PREFIX`
 #
-# Associative array of file extesions (w/o dot) to render method.
+# Associative array of file extesions (w/o dot) to render prefix.
 #
-#       EXT_TO_RENDER_STYLE[md]="cat"
-#       EXT_TO_RENDER_STYLE[sh]="doublepound"
-#       EXT_TO_RENDER_STYLE[bash]="doublepound"
+#       EXT_TO_RENDER_PREFIX[sh]="##"
+#       EXT_TO_RENDER_PREFIX[cpp]="*##"
 #
-typeset -A EXT_TO_RENDER_STYLE
-export EXT_TO_RENDER_STYLE=()
+typeset -A EXT_TO_RENDER_PREFIX
+export EXT_TO_RENDER_PREFIX=()
+
+# #### `$EXT_TO_RENDER_FUNC
+#
+# Associative array of file extesions (w/o dot) to render function.
+#
+#       EXT_TO_RENDER_PREFIX[sh]="prefix"
+#       EXT_TO_RENDER_PREFIX[jade]="jade"
+#
+typeset -A EXT_TO_RENDER_FUNC
+export EXT_TO_RENDER_FUNC=()
 
 # #### `$EXT_TO_COMMENT_STYLE`
 #
@@ -98,10 +106,10 @@ export RENDER_STYLE=()
 ## * `*.txt`
 ##
 RENDER_STYLE[cat]="cat '__FILENAME__'"
-EXT_TO_RENDER_STYLE[md]="cat"
-EXT_TO_RENDER_STYLE[markdown]="cat"
-EXT_TO_RENDER_STYLE[ronn]="cat"
-EXT_TO_RENDER_STYLE[txt]="cat"
+EXT_TO_RENDER_PREFIX[md]="cat"
+EXT_TO_RENDER_PREFIX[markdown]="cat"
+EXT_TO_RENDER_PREFIX[ronn]="cat"
+EXT_TO_RENDER_PREFIX[txt]="cat"
 
 ## ### doublepound
 ##
@@ -114,12 +122,9 @@ EXT_TO_RENDER_STYLE[txt]="cat"
 ##   * `*.sh`
 ##   * `*.bash`
 ##
-RENDER_STYLE[doublepound]="awk '{gsub(\"__CURLINE__\",NR,\$0);print}' '__FILENAME__' \
-    |grep '^\\s*##' \
-    |sed 's/^\\s*##\s\?//'"
-EXT_TO_RENDER_STYLE[sh]="doublepound"
-EXT_TO_RENDER_STYLE[zsh]="doublepound"
-EXT_TO_RENDER_STYLE[bash]="doublepound"
+EXT_TO_RENDER_PREFIX[sh]="##"
+EXT_TO_RENDER_PREFIX[zsh]="##"
+EXT_TO_RENDER_PREFIX[bash]="##"
 
 ## ### jade
 ##
@@ -133,8 +138,8 @@ EXT_TO_RENDER_STYLE[bash]="doublepound"
 ##   * `*.pug`
 ##
 RENDER_STYLE[jade]="jade -p '__FILENAME__' -P < '__FILENAME__'|sed -n '2,\$p'"
-EXT_TO_RENDER_STYLE[jade]="jade"
-EXT_TO_RENDER_STYLE[pug]="jade"
+EXT_TO_RENDER_FUNC[jade]="jade"
+EXT_TO_RENDER_FUNC[pug]="jade"
 
 ##
 ## ## COMMENT STYLES
@@ -291,7 +296,6 @@ _detect_comment_style() {
     fi
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-EVAL.bash
 ## ### EVAL
@@ -326,7 +330,6 @@ _block_EVAL() {
     blockargs="$1"
     printf "%s" "$(eval "${blockargs//\//\/}")" 
 }
-
 
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-INCLUDE.bash
@@ -386,7 +389,6 @@ _block_INCLUDE() {
     done
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-RENDER.bash
 ## ### RENDER
@@ -403,38 +405,79 @@ typeset -A BLOCK_PASS
 BLOCK_PASS[RENDER]=1
 
 _block_RENDER() {
-    local renderfile renderpath
-    renderfile="$1"
-    ext=${renderfile##*.}
-    _debug 2 "RENDER: extension == '$ext'"
-    style="${EXT_TO_RENDER_STYLE[$ext]}"
-    if [[ -z "$style" ]];then
-        _error "Cannot render '$ext'. Define \$EXT_TO_RENDER_STYLE[$ext]."
-    fi
-    render="${RENDER_STYLE[$style]}"
-    if [[ -z "$render" ]];then
-        _error "Cannot render '$style'. Define \$RENDER_STYLE[$style]."
-    fi
-    # shellcheck disable=2059
-    for dir in "${SHINCLUDE_PATH[@]}";do
-        renderpath="$dir/$renderfile"
-        _debug 2 "RENDER: Trying $renderpath"
-        if [[ -e "$renderpath" ]];then
-            _debug 1 "RENDER: Rendering $renderpath"
-            cmd="${RENDER_STYLE[$style]}"
-            cmd=${cmd//__FILENAME__/$renderpath}
-            _debug 1 "RENDER: command == '$cmd'"
-            output=$(eval "$cmd")
-            if (( $? > 0 ));then
-                _error "Rendering failed: $output"
-            fi
-            printf "%s" "$output"
-            return
+    eval set -- "$1"
+    _debug 0 "_block_RENDER $*"
+    local renderfile="${!#}"
+    local ext=${renderfile##*.}
+    local to_render
+    local renderfunc
+    while [[ "$1" = -* ]];do
+        case "$1" in
+            #help:|-f,--func FUNCTION|Render function
+            -f|--func*) renderfunc="$2"; shift ;;
+            *) break ;;
+        esac
+        shift
+    done
+    if [[ -z "$renderfunc" ]];then
+        _debug 1 "RENDER: Detecting render function by extension '$ext'"
+        renderfunc="${EXT_TO_RENDER_FUNC[$ext]}"
+        if [[ -z "$renderfunc" ]];then
+            _debug 1 "RENDER: Fall back to  'prefix' render function"
+            renderfunc='prefix'
         fi
+    fi
+    if ! declare -f "_render_$renderfunc" >/dev/null;then
+        _error "Undefined render function '$renderfunc'."
+    fi
+    for dir in "${SHINCLUDE_PATH[@]}";do
+        to_render="$dir/$renderfile"
+        _debug 2 "RENDER: Trying $to_render"
+        if [[ ! -e "$to_render" ]];then
+            continue;
+        fi
+        _debug 1 "RENDER: Rendering $to_render"
+        _debug 0 "_render_$renderfunc '$*'"
+        # _render_prefix
+        # _render_jade
+        "_render_$renderfunc" "$@"
+        if (( $? > 0 ));then
+            _error "Rendering failed: $output"
+        fi
+        return
     done
     _error "No file found in includes: $renderfile"
 }
 
+_render_prefix() {
+    local prefix
+    local renderfile="${!#}"
+    local ext=${renderfile##*.}
+    _debug 1 "RENDER: Derive render prefix from extension '$ext'"
+    local prefix="${EXT_TO_RENDER_PREFIX[$ext]}"
+    while [[ "$1" = -* ]];do
+        case "$1" in
+            -p|--prefix) prefix="$2"; shift ;;
+            *) _error "Unknown option '$1' to _render_prefix" ;;
+        esac
+        shift
+    done
+    if [[ -z "$prefix" ]];then
+        _debug 0 "Cannot derive render prefix from '$ext'."
+        _debug 0 "Falling back to renderprefix='##'."
+        _debug 0 "Define EXT_TO_RENDER_PREFIX[$ext]='...' to override.\n"
+        prefix='##'
+    fi
+    awk '{gsub("__CURLINE__",NR,$0);print}' "$1" \
+        | grep "^\s*$prefix" \
+        | sed "s/^\s*$prefix\s\?//"
+}
+
+_render_jade() {
+    local renderfile="${!#}"
+    # shellcheck disable=2094
+    jade -p "$renderfile" -P < "$renderfile" |sed -n '2,$p'
+}
 
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-MARKDOWN-TOC.bash
@@ -537,7 +580,6 @@ _block_MARKDOWN-TOC() {
     # for mdline in
 }
 
-
 # END-INCLUDE
 # BEGIN-INCLUDE src/block-BANNER.bash
 ## ### BANNER
@@ -605,13 +647,10 @@ _draw_banner() {
 }
 
 _block_BANNER() {
-    # local blockargs fontname prefix suffix
     eval set -- "$1"
-    # local IFS=" ";read -r -a blockargs <<< "$1"
     _debug 0 "_draw_banner '$1' '$2' '$3' '$4'"
     _draw_banner "$@"
 }
-
 
 # END-INCLUDE
 #-----------------------------------
@@ -663,7 +702,7 @@ _parse_lines() {
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
               _debug 1 "PASS $pass: SKIP '$blocktype' '$blockargs'"
-              printf "%s%s\n\n%s\n" "$begin" "$block" "$line"
+              printf "%s%s\n%s\n" "$begin" "$block" "$line"
               continue;
           fi
           _debug 1 "PASS $pass: RUN $blocktype '$blockargs'"
