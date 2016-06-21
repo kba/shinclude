@@ -1,0 +1,9 @@
+#!/usr/bin/env tsht
+
+BINARY="../../shinclude"
+
+use colordiff
+
+plan 1
+
+equals_file "$($BINARY -c slashstar including-file)" expected

@@ -1,0 +1,11 @@
+#!/usr/bin/env tsht
+
+BINARY="../../../shinclude"
+
+use diff
+
+plan 1
+
+actual="$($BINARY "input.md")"
+
+equals_file "$actual" expected.md

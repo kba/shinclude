@@ -1,0 +1,14 @@
+{
+    "name": "shinclude",
+    "version": "0.0.1",
+    "description": "Directives for code comments",
+    "scripts": ["dist/shinclude"],
+    "dependencies": {
+        "kba/shrender": "master",
+        "kba/shlog": "master"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kba/shrender"
+    }
+}

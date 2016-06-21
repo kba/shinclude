@@ -1,0 +1,11 @@
+
+// BEGIN-RENDER to-render.sh
+## foo
+
+Do some stuff
+
+// END-RENDER
+// BEGIN-RENDER -ip '#help:' to-render.sh
+I am help
+
+// END-RENDER

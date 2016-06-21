@@ -1,0 +1,4 @@
+language: nodejs
+install:
+  - npm install -g jade
+script: make test

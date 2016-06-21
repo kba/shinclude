@@ -1,0 +1,22 @@
+#!/usr/bin/env tsht
+
+BINARY="../../shinclude"
+
+use 'diff'
+
+plan 4
+
+infile="EVAL.md"
+
+# smoke test
+exec_ok "$BINARY" "-h"
+
+# test eval
+equals_file "$($BINARY $infile)" expected "exec '$BINARY $infile'"
+
+# # test eval from stdin
+equals_file "$(cat "$infile" | $BINARY -c markdown -)" expected "eval from stdin"
+
+# # test eval from stdin
+$BINARY -i $infile
+equals_file_file "$infile" expected "replace inline"

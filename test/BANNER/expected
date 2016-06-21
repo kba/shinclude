@@ -1,0 +1,10 @@
+<!-- BEGIN-BANNER -f standard -wrap '<pre>' '</pre>' foo -->
+<pre>
+  __             
+ / _| ___   ___  
+| |_ / _ \ / _ \ 
+|  _| (_) | (_) |
+|_|  \___/ \___/ 
+</pre>
+
+<!-- END-BANNER -->

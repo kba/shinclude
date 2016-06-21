@@ -1,0 +1,14 @@
+#!/usr/bin/env tsht
+BINARY="../../../shinclude"
+
+input="
+// BEGIN-RENDER to-render.sh
+// END-RENDER
+// BEGIN-RENDER -ip '#help:' to-render.sh
+// END-RENDER
+"
+
+use diff
+
+plan 1
+equals_file "$(echo "$input" | $BINARY -dd -c doubleslash -)" expected

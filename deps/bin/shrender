@@ -1,0 +1,189 @@
+#!/bin/bash
+
+## Renders a file to markdown using a [shell expression](#render_ext).
+
+## The render method is determined by the file extension, see 
+## [RENDER STYLES](#render-styles) for a list of render methods
+
+set -e
+
+SHRENDERSHARE="$(dirname "$0")"
+# logging
+PATH="$PATH:$SHRENDERSHARE/deps/bin"
+source "$(which shlog)"
+
+# Extension to render function (default is prefix)
+declare -Agx EXT_TO_RENDER_FUNC=(
+    [md]="cat"
+    [markdown]="cat"
+    [ronn]="cat"
+    [txt]="cat"
+    [jade]="jade"
+    [pug]="jade"
+)
+
+typeset -axg SHRENDER_PATH=("$PWD")
+export OUTPUT_PREFIX OUTPUT_SUFFIX INPUT_PREFIX INPUT_SUFFIX COLUMNIZE COLUMN_CHAR SHRENDER_DEFAULT_PREFIX
+SHRENDER_DEFAULT_PREFIX='## \?'
+
+# Extension to render prefix
+declare -Axg EXT_TO_RENDER_PREFIX=(
+    [sh]="$SHRENDER_DEFAULT_PREFIX"
+    [zsh]="$SHRENDER_DEFAULT_PREFIX"
+    [bash]="$SHRENDER_DEFAULT_PREFIX"
+    [java]="\*\* \?"
+    [cpp]="\*\* \?"
+)
+
+
+shrender() {
+    local renderfile renderfunc renderfile_abs 
+    #help:
+    #help:Usage: shrender [opts...] [render-opts] <file-to-render>...
+    #help:  
+    #help:    Options:
+    #help:  
+    while [[ "$1" = -* ]];do
+        case "$1" in
+            #help:\t-f  --function FUNC         Show help
+            -h|--help) shrender::usage; shift ;;
+            #help:\t-f  --function FUNC         Render function
+            -f|--func*) renderfunc="$2"; shift ;;
+            #help:\t-p  --path PATH             Add path to shrenders search path
+            -p|--path) SHRENDER_PATH+=("$2"); shift ;;
+            #help:\t-c  --column CHAR           Columnize at this char.
+            -c|--column) COLUMNIZE=true; COLUMN_CHAR="$2"; shift ;;
+            #help:\t-ip --input-prefix PREFIX   The pattern to filter input lines with.
+            -ip|--input-prefix) INPUT_PREFIX="$2"; shift ;;
+            #help:\t-is --input-suffix SUFFIX   Optional suffix in input lines to be removed
+            -is|--input-suffix) INPUT_SUFFIX="$2"; shift ;;
+            #help:\t-op --output-prefix PREFIX  Prepend output lines with this string.
+            -op|--output-prefix) OUTPUT_PREFIX="$2"; shift ;;
+            #help:\t-os --output-suffix SUFFIX  Append this string to output lines.
+            -os|--output-suffix) OUTPUT_SUFFIX+="$2"; shift ;;
+            *) shlog -l error -x 87 "No such option '$1'" ;;
+        esac
+        shift
+    done
+    [[ -z "$1" ]] && { shrender::usage; exit; }
+    shrender::load_profile 
+
+    for renderfile in "$@";do
+        renderfile_abs=$(shrender::resolve_file "$renderfile")
+        if (( $? > 0 ));then
+            shlog -l error -x $? "Failed to resolve '$renderfile'"
+        fi
+        if [[ -z "$renderfunc" ]];then
+            renderfunc="$(shrender::function_for_extension "$renderfile")"
+        fi
+        if ! declare -f "shrender::$renderfunc" >/dev/null;then
+            shlog -l error -x 7 "No such render function '$renderfunc'."
+        fi
+        shlog -l debug "Rendering $renderfile_abs"
+        shlog -l info "shrender::$renderfunc '$renderfile_abs'"
+        tempfile=$(mktemp --tmpdir "shrender.XXXXX.$(basename "$renderfile"|sed 's/.*\.//')")
+        # shellcheck disable=2064
+        trap "rm $tempfile" EXIT INT TERM
+        awk "{
+            gsub(\"__CURLINE__\",NR,\$0);
+            print
+        }" < "$renderfile_abs" > "$tempfile"
+        sed -i "s,__CURFILE__,$renderfile," "$tempfile"
+        output=$(
+            local IFS=$'\n'
+            local line;
+            "shrender::$renderfunc" "$tempfile" |while read -r line;do
+                printf "%s%s%s\n" "$OUTPUT_PREFIX" "$line" "$OUTPUT_SUFFIX"
+            done)
+        if [[ ! -z "$COLUMN_CHAR" ]];then
+            output=$(echo "$output" |column -ets"$COLUMN_CHAR")
+        fi
+        if (( $? > 0 ));then
+            shlog -l error -x 7 "Rendering failed: $output"
+        fi
+        echo -e "$output"
+    done
+}
+
+shrender::usage () {
+    SHLOG_SILENT=true bash "$0" -ip '#help:' "$0"
+}
+
+shrender::load_profile () {
+    for profile in "$SHRENDERSHARE/shrender.profile" "/etc/default/shrender" "$PWD/.shrenderrc";do
+        if [[ -e "$profile" ]];then source "$profile";fi
+    done
+    return
+}
+
+shrender::resolve_file() {
+    local f=$1
+    if [[ -e "$f" ]];then
+        echo "$f"
+        return
+    fi
+    for dir in "${SHRENDER_PATH[@]}";do
+        fabs="$dir/$f"
+        if [[ -e "$fabs" ]];then
+            echo "$fabs"
+            return
+        fi
+    done
+    shlog -l error -x 2 "No file found in includes: $renderfile"
+}
+
+shrender::function_for_extension() {
+    local f="$1"
+    local ext=$(basename "$f"|sed 's/.*\.//')
+    shlog -l debug "Detecting render function by extension '$ext'"
+    local renderfunc="${EXT_TO_RENDER_FUNC[$ext]}"
+    if [[ -z "$renderfunc" ]];then
+        shlog -l trace "Default to 'prefix' render function"
+        renderfunc='prefix'
+    fi
+    echo "$renderfunc"
+}
+
+shrender::cat () {
+    cat "$1"
+}
+
+shrender::jade () {
+    export SHRENDER_JADE=${SHRENDER_JADE:-jade}
+    [[ -z "$1" ]] && { shrender::usage; exit; }
+    # shellcheck disable=2094
+    jade -p "$1" -P < "$1" | sed -n -e '2,$p' -e '$a \\n'
+}
+
+shrender::prefix () {
+    while [[ "$1" = -* ]];do
+        case "$1" in
+            *) shlog -l error -x 7 "Unknown option '$1' to shrender::prefix" ;;
+        esac
+        shift
+    done
+    [[ -z "$1" ]] && { shrender::usage; exit; }
+    shlog -l trace "Rendering '$1'"
+    local renderfile="$1"
+    if [[ -z "$INPUT_PREFIX" ]];then
+        local ext=${renderfile##*/}
+        ext=${ext##*.}
+        shlog -l debug "Derive render prefix from extension '$ext'"
+        INPUT_PREFIX="${EXT_TO_RENDER_PREFIX[$ext]}"
+    fi
+    if [[ -z "$INPUT_PREFIX" ]];then
+        shlog -l debug "Cannot derive render prefix from '$ext'."
+        shlog -l debug "Falling back to renderprefix='##'."
+        shlog -l debug "Define EXT_TO_RENDER_PREFIX[$ext]='...' to override.\n"
+        INPUT_PREFIX=$SHRENDER_DEFAULT_PREFIX
+    fi
+    shlog -l info "Rendering '$renderfile' by prefix '$INPUT_PREFIX'"
+    grep "^\s*$INPUT_PREFIX" "$1" | sed "s/^\s*$INPUT_PREFIX//"
+}
+
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]];then
+    shrender "$@"
+else
+    export -f shrender
+fi

@@ -1,0 +1,14 @@
+#!/usr/bin/env tsht
+
+use diff
+plan 1
+
+BINARY="../../shinclude"
+
+# $BINARY -c xml input.md |sed 's/^/#|| /'
+
+actual="$($BINARY -c xml input.md)"
+# echo "$actual"
+# echo "$(cat expected)"
+
+equals_file "$actual" expected "BANNER works"

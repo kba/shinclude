@@ -1,0 +1,360 @@
+#!/bin/bash
+
+# BEGIN-INCLUDE LICENSE.header
+# The MIT License (MIT)
+# 
+# Copyright (c) 2016 Konstantin Baierer
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# END-INCLUDE
+
+#api: ### `shlog`
+#api: [source](__CURFILE__#L__CURLINE__)
+#api:
+#api: The logging function
+#api:
+shlog () {
+    if [[ ! -z "$SHLOG_SILENT" ]];then
+        return
+    fi
+    local level msg module
+    level="trace"
+    if [[ "${BASH_SOURCE[0]}" != "$0" ]];then
+        module="${BASH_SOURCE[1]}"
+    else
+        module="$0"
+    fi
+    module=${module##*/}
+    module=${module%%.%}
+    local exit_status=-1
+    while [[ "$1" = -* ]];do
+        case "$1" in
+            ## * `-h --help`: Show help
+            -h|--help) shlog::usage; return ;;
+            ## * `-l --level LEVEL`: Log the message to this level. Default: `trace`
+            -l|--level) level=$2; shift ;;
+            ## * -m,--module MODULE: Mark the log message as belonging to this module. Default: basename of `$0`
+            -m|--module) module="$2"; shift ;;
+            ## * -x,--exit EXIT_STATUS: Exit the shell after emitting the log message.
+            -x|--exit) exit_status=$2; shift ;;
+            ## -d,--dump VARNAME: Dump the definition of `VARNAME` instead of a log message.
+            -d|--dump) msg=$(shlog-dump "$2"); shift ;;
+            ## * -v,--verbose: Dump the configuration of shlog upon initialization. See
+            ##   [`SHLOG_SELFDEBUG`](#shlog-selfdebug)
+            -v|--verbose) SHLOG_SELFDEBUG="true"; shift ;;
+        esac
+        shift
+    done
+    if [[ -z "$1" ]];then
+        shlog::usage
+        exit
+    fi
+    msg="${msg:-$*}"
+    local output
+    for output in "${!SHLOG_OUTPUTS[@]}";do
+        local out="$SHLOG_FORMAT"
+        # shellcheck disable=SC2004
+        if [[ "${SHLOG_OUTPUTS[$output]}" = "off" ]];then
+            continue
+        fi
+        output_level="${SHLOG_LEVELS[${SHLOG_OUTPUTS[$output]}]}"
+        msg_level="${SHLOG_LEVELS[$level]}"
+        if (( output_level > msg_level ));then
+            continue
+        fi
+        # shellcheck disable=2059
+        local date=$(printf "$SHLOG_DATE_FORMAT")
+        printf -v levelfmt "%-5s" "$level"
+        if [[ "${SHLOG_USE_STYLES[$output]}" = "true" ]];then
+            out=${out//%level/${SHLOG_STYLES[$level]}${levelfmt}${SHLOG_STYLES[reset]}}
+            out=${out//%module/${SHLOG_STYLES[module]}${module}${SHLOG_STYLES[reset]}}
+            out=${out//%line/${SHLOG_STYLES[line]}${BASH_LINENO[0]}${SHLOG_STYLES[reset]}}
+            out=${out//%date/${SHLOG_STYLES[date]}${date}${SHLOG_STYLES[reset]}}
+        else
+            out=${out//%level/$levelfmt}
+            out=${out//%module/$module}
+            out=${out//%line/${BASH_LINENO[0]}}
+            out=${out//%date/$date}
+        fi
+        out=${out//%msg/$msg}
+        # shellcheck disable=2059
+        case "$output" in
+            file*)
+                echo -e "$out" >> "$SHLOG_FILE_FILENAME"
+                ;;
+            term) 
+                if [[ "$SHLOG_TERM_OUTPUT" = "stdout" ]];then
+                    echo -e "$out"
+                else
+                    echo -e "$out" >&2
+                fi
+                ;;
+        esac
+    done
+    if [[ "$exit_status" != "-1" ]];then
+        exit "$exit_status"
+    fi
+}
+CSI="\e["
+
+#api: ### `shlog::init`
+#api: [source](__CURFILE__#L__CURLINE__)
+#api:
+#api: (Re-)initialize the logging by reading configuration files and setting up variables.
+#api:
+shlog::init () {
+
+    typeset -gA \
+        SHLOG_LEVELS \
+        SHLOG_STYLES \
+        SHLOG_OUTPUTS \
+        SHLOG_USE_STYLES
+    export \
+        SHLOG_LEVELS \
+        SHLOG_STYLES \
+        SHLOG_OUTPUTS \
+        SHLOG_USE_STYLES \
+        SHLOG_DATE_FORMAT \
+        SHLOG_TERM_OUTPUT \
+        SHLOG_FORMAT \
+        SHLOG_FILE_FILENAME \
+        SHLOG_SELFDEBUG \
+        SHLOG_INITIALIZED
+
+
+    ## ### Log levels
+    ## 
+    ## `shlog` knows five levels, from lowest to highest priority:
+    ##
+    ## * trace
+    ## * debug
+    ## * info
+    ## * warn
+    ## * error
+    ##
+    SHLOG_LEVELS=(
+        [off]=999
+        [trace]=0
+        [debug]=1
+        [info]=2
+        [warn]=3
+        [error]=4
+    )
+
+    ## ### Configuration files
+    ## 
+    ## `shlog` will look in three places for a configuration file with
+    ## environment variables:
+    ## 
+    ## * `/etc/default/shlogrc`
+    ## * `$HOME/.config/shlog/shlogrc`
+    ## * `$PWD/.shlogrc`
+    ## 
+    ## Environment variables in any of those files will be sourced in that
+    ## order to configure the logging.
+    ##
+    for conf in /etc/default/shlogrc $HOME/.config/shlog/shlogrc ${PWD}/.shlogrc;do
+        if [[ -e "$conf" ]];then
+            source "$conf"
+            if [[ ! -z "$SHLOG_SELFDEBUG" ]];then
+                shlog -m shlog -l info "Sourced '$conf'"
+            fi
+        fi
+    done
+
+    ## ### Colors
+    ##
+    ## Defines the colors to use for various part of the log message if
+    ## [`SHLOG_USE_STYLES`](#shlog_use_styles) is set for that [output](#shlog-outputs).
+    ##
+    ## #### `SHLOG_STYLE_TRACE`
+    ## `SHLOG_STYLE_TRACE`  : `%level`==`trace` : Default: magenta
+    ## #### `SHLOG_STYLE_DEBUG`
+    ## `SHLOG_STYLE_DEBUG`  : `%level`==`debug` : Default: cyan
+    ## #### `SHLOG_STYLE_INFO`
+    ## `SHLOG_STYLE_INFO`   : `%level`==`info`  : Default: cyan
+    ## #### `SHLOG_STYLE_WARN`
+    ## `SHLOG_STYLE_WARN`   : `%level`==`warn`  : Default: yellow
+    ## #### `SHLOG_STYLE_ERROR`
+    ## `SHLOG_STYLE_ERROR`  : `%level`==`error` : Default: bold red
+    ## #### `SHLOG_STYLE_MODULE`
+    ## `SHLOG_STYLE_MODULE` : `%module`         : Default: bold
+    ## #### `SHLOG_STYLE_LINE`
+    ## `SHLOG_STYLE_LINE`   : `%line`           : Default: bold green
+    ## #### `SHLOG_STYLE_DATE`
+    ## `SHLOG_STYLE_DATE`   : `%date`           : Default: none
+    ## #### `SHLOG_STYLE_RESET`
+    ## `SHLOG_STYLE_RESET` : (after every style) : Default: `\e[0m`
+    ##
+    SHLOG_STYLES=(
+        [trace]="${SHLOG_STYLE_TRACE:-${CSI}35m}"
+        [debug]="${SHLOG_STYLE_DEBUG:-${CSI}36m}"
+        [info]="${SHLOG_STYLE_INFO:-${CSI}32;1m}"
+        [warn]="${SHLOG_STYLE_WARN:-${CSI}33m}"
+        [error]="${SHLOG_STYLE_ERROR:-${CSI}31;1m}"
+        [module]="${SHLOG_STYLE_MODULE:-${CSI}1m}"
+        [line]="${SHLOG_STYLE_LINE:-${CSI}32;1m}"
+        [date]="${SHLOG_STYLE_DATE:-}"
+        [reset]="${CSI}0m"
+    )
+
+    ## ### Outputs
+    ##
+    ## Defines the minimum level at which to log to different outputs
+    ##
+    ## #### `SHLOG_TERM`
+    ## `SHLOG_TERM`: Minimum level for terminal. Default: `trace`
+    ## #### `SHLOG_FILE`
+    ## `SHLOG_FILE`: Minimum level for file logging. Default: `off`
+    ## 
+    SHLOG_OUTPUTS=(
+        [term]="${SHLOG_TERM:-trace}"
+        [file]="${SHLOG_FILE:-off}"
+    )
+
+    ## ### Enabling / Disabling colors
+    ##
+    ## Defines which outputs should use [styles](#shlog_styles).
+    ## 
+    ## #### `SHLOG_TERM_COLORIZE`
+    ## `SHLOG_TERM_COLORIZE`: Use styles on terminal . Default: `"true"`
+    ## #### `SHLOG_FILE_COLORIZE`
+    ## `SHLOG_FILE_COLORIZE`: Use styles on file . Default: `"false"`
+    ## 
+    SHLOG_USE_STYLES=(
+        [term]="${SHLOG_TERM_COLORIZE:-true}"
+        [file]="${SHLOG_FILE_COLORIZE:-false}"
+    )
+
+    ## ### Term Output options
+    ##
+    ## #### `SHLOG_TERM_OUTPUT`
+    ##
+    ## Whether to output to `stderr` (the default) or `stdout`.
+    ##
+    SHLOG_TERM_OUTPUT="${SHLOG_TERM_OUTPUT:-stderr}"
+
+    ## ### File Output options
+    ##
+    ## #### `SHLOG_FILE_FILENAME`
+    ## `SHLOG_FILE_FILENAME`: Filename of the file to log to.
+    ##
+    ## Default: basename of `$0` with out extension + `.log` in `/tmp`
+    ##
+    SHLOG_FILE_FILENAME=${SHLOG_FILE_FILENAME:-/tmp/$(basename "$0"|sed 's/\..*$//').log}
+
+    ## ### Formatting Log output
+    ##
+    ## #### `SHLOG_DATE_FORMAT`
+    ##
+    ## `strftime(3)` pattern for the `%date` part of a log message, to be
+    ## passed to `printf`.
+    ##
+    ## Default: `%(%F %T)T` (i.e. `YYYY-MM-DD HH:MM:SS`)
+    ##
+    SHLOG_DATE_FORMAT="${SHLOG_DATE_FORMAT:-%(%F %T)T}"
+
+    ## #### `SHLOG_FORMAT`
+    ##
+    ## `printf`-Pattern for the log message.
+    ##
+    ## Default: `[%level] %date %module:%line - %msg`
+    ##
+    ## Custom patterns:
+    ## ##### `%level`
+    ## `%level`: The [log level](#shlog-levels)
+    ## ##### `%date`
+    ## `%date`: The timestamp of the log message, see [`SHLOG_DATE_FORMAT`](#shlog_date_format)
+    ## ##### `%module`
+    ## `%module`: The calling [module](#-m---module-module)
+    ## ##### `%line`
+    ## `%line`: Line number of the calling script
+    ## ##### `%msg`
+    ## `%msg`: The actual log message
+    ##
+    SHLOG_FORMAT="${SHLOG_FORMAT:-[%level] %date %module:%line - %msg}"
+
+    ## ### Debugging shlog
+    ##
+    ## #### `SHLOG_SELFDEBUG`
+    ## If set to `"true"`, shlog will output its configuration upon first initialization.
+    ##
+    ## Default: false
+    ##
+    if [[ "$SHLOG_SELFDEBUG" = "true" ]];then
+        shlog::selfdebug
+    fi
+
+    SHLOG_INITIALIZED=true
+}
+shlog::usage () {
+    echo "Usage: shlog [-v] [-l LEVEL] [-m MODULE] [-d VARNAME] [-x EXIT_STATUS] <msg>
+
+    Options:
+
+        -h --help               Show this help
+        -l --level LEVEL        Log at this LEVEL [Default: trace]
+        -m --module MODULE      Log as this MODULE [Default: calling script]
+        -d --dump VARNAME       Dump variable VARNAME
+        -x --exit EXIT_STATUS   Log and exit with EXIT_STATUS"
+}
+#api: ### `shlog::dump`
+#api: [source](__CURFILE__#L__CURLINE__)
+#api:
+#api: Dump a variable by calling `declare -p`
+#api:
+shlog::dump () {
+    local varname
+    for varname in "$@";do
+        {
+            declare -p "$varname" 2>/dev/null|| echo "$varname="
+        } |grep -o "$varname.*" #|sed -e 's,\([( ]\)\[,\1\n\t[,g'
+    done
+}
+#api: ### `shlog::selfdebug`
+#api: [source](__CURFILE__#L__CURLINE__)
+#api:
+#api: Dump the configuration to STDOUT.
+#api:
+#api: See [`shlog::dump`](#shlog--dump).
+#api:
+shlog::selfdebug () {
+    >&2 echo "Initialized shlog:"
+    >&2 shlog::dump \
+        SHLOG_LEVELS \
+        SHLOG_STYLES \
+        SHLOG_USE_STYLES \
+        SHLOG_OUTPUTS \
+        SHLOG_TERM \
+        SHLOG_FILE \
+        SHLOG_TERM_COLORIZE \
+        SHLOG_FILE_COLORIZE \
+        SHLOG_FORMAT \
+        SHLOG_DATE_FORMAT
+}
+
+# detect if being sourced and
+# export if so else execute
+# main function with args
+shlog::init
+if [[ ${BASH_SOURCE[0]} != $0 ]]; then
+    export -f shlog shlog::dump
+else
+    shlog "${@}"
+fi

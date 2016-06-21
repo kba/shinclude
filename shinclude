@@ -1,0 +1,664 @@
+#!/bin/bash
+
+export SHINCLUDESHARE
+SHINCLUDESHARE="$(dirname "${BASH_SOURCE[0]}")"
+PATH="$PATH:$SHINCLUDESHARE/deps/bin"
+source "$(which shlog)" || { echo 'Requires shlog'; exit 1; }
+source "$(which shrender)" || { shlog -l error -x 1 'Requires shrender'; }
+
+typeset -A BLOCK_PASS
+typeset -a SHINCLUDE_PATH
+SHINCLUDE_PATH=()
+SHINCLUDE_PATH+=("$PWD")
+## ### BANNER
+##
+## Shows a banner using FIGlet or TOIlet
+##
+## BANNER Runs on **first** pass
+## 
+##     # BEGIN-BANNER -f standard -w '<pre>' '</pre>' foo
+##     # END-BANNER
+## 
+## 
+## will be transformed to
+## 
+##     # BEGIN-BANNER -f standard -w '<pre>' '</pre>' foo
+##     <pre>
+##       __             
+##      / _| ___   ___  
+##     | |_ / _ \ / _ \ 
+##     |  _| (_) | (_) |
+##     |_|  \___/ \___/ 
+##     </pre>
+##     # END-EVAL
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[BANNER]=1
+
+shinclude-block-BANNER() {
+    eval set -- "$1" || shlog -l error -x 2 "Error parsing arguments to BANNER"
+    shlog -l trace "_draw_banner '$1' '$2' '$3' '$4' '$5' '$6' '$7' '$8'"
+    fontname="standard"
+    prefix=""
+    suffix=""
+    indent=""
+    ##
+    ## #### Options
+    while [[ "$1" = -* ]];do
+        case "$1" in 
+            ## ##### -f, --font FONT
+            ##
+            ## Specify font. See `/usr/share/figlet` for a list of fonts.
+            ##
+            -f|--font) fontname="$2"; shift ;;
+            ## ##### -i, --indent INDENT
+            ##
+            ## Specify indent. Example: `-i "\t"`, `-i '    '`
+            ##
+            -i|--indent) indent="$2"; shift ;;
+            ## ##### -w, --wrap BEFORE AFTER
+            ##
+            ## Wrap in lines. E.g `-w '<pre>' '</pre'`
+            ##
+            -w|-wrap|--wrap) prefix="$2" ; suffix="$3" ; shift ; shift ;;
+            *) shlog -l error -x 2 "Unknown option '$1' passed to BANNER" ;;
+        esac
+        shift
+    done
+    local bundledfont="$SHINCLUDESHARE/deps/figlet-fonts/fonts/${fontname}.flf"
+    if [[ -e "$bundledfont" ]];then
+        shlog -l info "Using bundled font '$bundledfont'."
+        fontname="$bundledfont"
+    fi
+    figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+    if [[ $? != 0 ]];then
+        shlog -l error -x 2 "Figlet threw an error!"
+    fi
+    [[ ! -z "$prefix" ]] && echo -e "$prefix"
+    echo -nE "$figletOutput" |grep '[^ ]'|sed "s/^/$indent/"
+    [[ ! -z "$suffix" ]] && echo -e "$suffix"
+    return 0
+}
+## ### EVAL
+##
+## Evaluates the arguments as a shell expression. **BE CAREFUL**
+##
+## EVAL Runs on **first** pass
+## 
+##     # BEGIN-EVAL wc *
+##     # END-EVAL
+## 
+## 
+## will be transformed to
+## 
+##     # BEGIN-EVAL wc *
+##
+##       21   171  1085 LICENSE
+##       51   106   978 Makefile
+##      290   461  4058 README.md
+##      558  1267 12212 shinclude
+##      275   828  5565 shinclude.1
+##     1723  4100 36080 total
+##
+##     # END-EVAL
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[EVAL]=1
+
+shinclude-block-EVAL () {
+    local blockargs
+    blockargs="$1"
+    printf "%s" "$(eval "${blockargs//\//\/}")" 
+}
+## ### INCLUDE
+##
+## Include data from a file.
+##
+## `INCLUDE` runs on **first** pass.
+##
+##     # BEGIN-INCLUDE LICENSE
+##     # END-INCLUDE
+##
+## will be transformed to
+##
+##     # BEGIN-INCLUDE LICENSE
+##     The MIT License (MIT)
+##     
+##     Copyright (c) 2016 Konstantin Baierer
+##     
+##     Permission is hereby granted, free of charge, to any person obtaining a copy
+##     of this software and associated documentation files (the "Software"), to deal
+##     in the Software without restriction, including without limitation the rights
+##     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+##     copies of the Software, and to permit persons to whom the Software is
+##     furnished to do so, subject to the following conditions:
+##     
+##     The above copyright notice and this permission notice shall be included in all
+##     copies or substantial portions of the Software.
+##     
+##     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+##     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+##     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+##     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+##     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+##     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+##     SOFTWARE.
+##     # END-INCLUDE
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[INCLUDE]=1
+
+shinclude-block-INCLUDE () {
+    local blockargs includefile
+    blockargs="$1"
+    local IFS=$'\n'
+    # shellcheck disable=2001
+    for includefile in $(echo "$blockargs"|sed 's/,\s*/\n/g');do
+        for dir in "${SHINCLUDE_PATH[@]}";do
+            shlog -l trace "INCLUDE: Trying $dir/$includefile"
+            if [[ -e "$dir/$includefile" ]];then
+                shlog -l debug "INCLUDE: Including $includefile"
+                cat "$dir/$includefile"
+                break;
+            fi
+        done
+    done
+}
+## ### MARKDOWN-TOC
+##
+## ([source](./src/block-MARKDOWN-TOC.bash#L__CURLINE__), [test](./test/MARKDOWN-TOC))
+##
+## Reads in the file and outputs a table of contents of
+## the markdown headings.
+
+##
+## Runs on **second** pass
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[MARKDOWN-TOC]=2
+
+##
+##     # First Heading
+##
+##     [rem]: BEGIN-MARKDOWN-TOC
+##     [rem]: END-MARKDOWN-TOC
+##
+##     ## Second-Level Heading
+##
+## will be transformed to (`shinclude -cs '[rem]:' -ce '' -`)
+##
+##     # First Heading
+##
+##     [rem]: BEGIN-MARKDOWN-TOC
+##
+##     * [First Heading](#first-heading)
+##     	* [Second-Level  Heading](#second-level-heading)
+##
+##     [rem]: END-MARKDOWN-TOC
+##
+##     ## Second-Level Heading
+
+## #### `$MARKDOWN_TOC_INDENT`
+##
+## String to indent a single level. Default: `\t`
+##
+MARKDOWN_TOC_INDENT=${MARKDOWN_TOC_INDENT:-	}
+
+## #### `$HEADING_REGEX`
+##
+## Regex used to detect and tokenize headings.
+##
+## Default: `^(##+)\s*(.*)`
+##
+HEADING_REGEX='^(##+)\s*(.*)'
+
+## #### Heading-to-Link algorithm
+##
+# shellcheck disable=2004
+_heading_to_toc() {
+    local heading indent link_text link_target
+    pounds="$1"
+    link_text="$2"
+    shlog -l trace "MARKDOWN-TOC: Link Text: '$link_text' Link level: ${#pounds}"
+    ## Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
+    ##
+    indent=${pounds#\##}
+    indent=${indent//\#/$MARKDOWN_TOC_INDENT}
+    ## Link target: Start with Link Text
+    ##
+    ## * lowercase
+    ## * remove `` $ ` ( ) . ,``
+    ## * Replace all non-alphanumeric characters with `-`
+    ## * If link target not used previously
+    ## * then set `EXISTING_HEADINGS[$link_target]` to `1`
+    ## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+    link_target="${link_text,,}"
+    link_target="${link_target//[\$\`()\.,%:\?]/}"
+    link_target="${link_target//[^A-Za-z0-9_]/-}"
+    if [[ -z ${EXISTING_HEADINGS[$link_target]} ]];then
+        EXISTING_HEADINGS["$link_target"]=1
+    else
+        link_target="${link_target}-${EXISTING_HEADINGS[$link_target]}"
+        (( EXISTING_HEADINGS[${link_target%-*}] += 1 ))
+    fi
+    printf "%s* [%s](#%s)\n" \
+        "$indent" \
+        "$link_text" \
+        "$link_target"
+}
+
+shinclude-block-MARKDOWN-TOC () {
+    local blockargs block line infile
+    typeset -A EXISTING_HEADINGS
+    EXISTING_HEADINGS=()
+    infile="$3"
+    IFS=$'\n'
+    while read line;do
+        if [[ $line =~ $HEADING_REGEX ]];then
+            _heading_to_toc "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        fi
+    done < "$infile"
+    shlog -l debug "MARKDOWN-TOC: $(declare -p EXISTING_HEADINGS)"
+    # for mdline in
+}
+## ### RENDER
+##
+## Renders a file to markdown using a [shell expression](#render_ext).
+##
+## The actual work is done by [`shrender`](https://github.com/kba/shrender). Have
+##
+## Runs on **first** pass
+##
+typeset -A BLOCK_PASS
+# shellcheck disable=2034
+BLOCK_PASS[RENDER]=1
+
+source "$(which shrender)"
+
+shinclude-block-RENDER() {
+    eval set -- "$1"
+    shlog -l debug "shrender $*"
+    shrender "$@"
+}
+# #### `$EXT_TO_COMMENT_STYLE`
+#
+# Associative array of file extesions (w/o dot) to comment style.
+#
+#       EXT_TO_COMMENT_STYLE[md]="markdown"
+#       EXT_TO_COMMENT_STYLE[markdown]="markdown"
+#       EXT_TO_COMMENT_STYLE[ronn]="markdown"
+#
+typeset -A EXT_TO_COMMENT_STYLE
+export EXT_TO_COMMENT_STYLE=()
+
+# #### `$COMMENT_STYLE_START`
+#
+# Associative array of comment start strings for select languages
+#
+#       COMMENT_STYLE_START[html]="<!--"
+#
+typeset -A COMMENT_STYLE_START
+export COMMENT_STYLE_START=()
+
+# #### `$COMMENT_STYLE_END`
+#
+# Associative array of comment start strings for select languages
+#
+#       COMMENT_STYLE_END[html]="-->"
+#
+typeset -A COMMENT_STYLE_END
+export COMMENT_STYLE_END=()
+
+##
+## ## COMMENT STYLES
+##
+
+## ### xml
+##
+## Comment style:
+##
+##       <!-- BEGIN-... -->
+##       <!-- END-... -->
+##
+COMMENT_STYLE_START[xml]="<!--"
+COMMENT_STYLE_END[xml]="-->"
+##
+## File Extensions:
+##
+## * `.html`
+## * `*.xml`
+##
+EXT_TO_COMMENT_STYLE[html]='xml'
+EXT_TO_COMMENT_STYLE[xml]='xml'
+
+## ### markdown
+##
+## Comment style:
+##
+##     []: BEGIN-...
+##     []: END-...
+##
+COMMENT_STYLE_START[markdown]="[]:"
+COMMENT_STYLE_END[markdown]=""
+##
+## Extensions:
+##   * `*.ronn`
+##   * `*.md`
+##
+EXT_TO_COMMENT_STYLE[md]='markdown'
+EXT_TO_COMMENT_STYLE[markdown]='markdown'
+EXT_TO_COMMENT_STYLE[ronn]='markdown'
+
+## ### pound
+##
+## Comment style:
+##
+##     # BEGIN-...
+##     # END-...
+##
+COMMENT_STYLE_START[pound]="#"
+COMMENT_STYLE_END[pound]=""
+## Extensions:
+##
+##   * `*.sh`
+##   * `*.bash`
+##   * `*.zsh`
+##   * `*.py`
+##   * `*.pl`
+##   * `*.PL`
+##   * `*.coffee`
+##
+EXT_TO_COMMENT_STYLE[sh]='pound'
+EXT_TO_COMMENT_STYLE[bash]='pound'
+EXT_TO_COMMENT_STYLE[zsh]='pound'
+EXT_TO_COMMENT_STYLE[py]='pound'
+EXT_TO_COMMENT_STYLE[pl]='pound'
+EXT_TO_COMMENT_STYLE[PL]='pound'
+EXT_TO_COMMENT_STYLE[coffee]='pound'
+
+## ### slashstar
+##
+## Comment style:
+##
+##     /* BEGIN-... */
+##     /* END-... */
+##
+## File Extensions:
+##
+## * `*.cpp`
+## * `*.cxx`
+## * `*.java`
+##
+EXT_TO_COMMENT_STYLE[cpp]='slashstar'
+EXT_TO_COMMENT_STYLE[cxx]='slashstar'
+EXT_TO_COMMENT_STYLE[java]='slashstar'
+COMMENT_STYLE_START[slashstar]="/*"
+COMMENT_STYLE_END[slashstar]="*/"
+
+## ### doubleslash
+##
+## File Extensions:
+##
+##     // BEGIN-...
+##     // END-...
+##
+COMMENT_STYLE_START[doubleslash]="//"
+COMMENT_STYLE_END[doubleslash]=""
+##
+## File Extensions:
+##
+##   * `*.c`
+##   * `*.js`
+##
+EXT_TO_COMMENT_STYLE[js]='doubleslash'
+EXT_TO_COMMENT_STYLE[c]='doubleslash'
+
+## ### doublequote
+##
+## Comment style:
+##
+##     " BEGIN-...
+##     " END-...
+##
+COMMENT_STYLE_START[doublequote]="\""
+COMMENT_STYLE_END[doubleslash]=""
+##
+## File Extensions:
+##
+## * `*.vim`
+##
+EXT_TO_COMMENT_STYLE[vim]='doublequote'
+
+## ### doubleslashbang
+##
+## Comment style:
+##
+##     //! BEGIN-...
+##     //! END-...
+##
+COMMENT_STYLE_START[doubleslashbang]="//!"
+COMMENT_STYLE_END[doubleslashbang]=""
+## Extensions:
+##
+##   * `*.jade`
+##   * `*.pug`
+##
+EXT_TO_COMMENT_STYLE[jade]='doubleslashbang'
+EXT_TO_COMMENT_STYLE[pug]='doubleslashbang'
+
+# ### _detect_comment_style
+# 
+# Detect comment style by file extension. Default: 'xml'
+#
+#     _detect_comment_style "foo.md"    # -> 'markdown'
+#     _detect_comment_style "foo.pl"    # -> 'pound'
+#
+_detect_comment_style() {
+    local ext
+    ext=${1##*.}
+    if [[ ! -z "${EXT_TO_COMMENT_STYLE[$ext]}" ]];then
+        echo "${EXT_TO_COMMENT_STYLE[$ext]}"
+    else
+        shlog -l info "Unknown extension $ext, defaulting to 'xml'"
+        echo 'xml'
+    fi
+}
+# ### usage
+#
+# Show usage
+#
+usage() {
+  echo "Usage: $0 [-h] [-c COMMENT_STYLE] [-i] <action> [input-file]"
+  [[ ! -z "$1" ]] && echo -e "\n!! $* !!\n"
+  echo '
+  Input File:
+
+    If input-file is "-", read from STDIN.
+    If no input-file is given, assume "./README.md"'
+}
+
+#
+# main
+#
+
+# shellcheck disable=2094
+_parse_lines() {
+    local pass line begin end blocktype blockargs block infile
+    pass=$1
+    infile=$2
+    IFS=$'\n'
+    while read -r line;do
+      if [[ "$line" = "$COMMENT_START BEGIN-"* ]];then
+          begin="$line"
+
+          blocktype="${begin:${#COMMENT_START}:${#line}}"
+          blocktype="${blocktype##*BEGIN-}"
+          blocktype="${blocktype%$COMMENT_END}"
+          blocktype="${blocktype%% *}"
+
+          blockargs="${begin:${#COMMENT_START}:${#line}}"
+          blockargs="${blockargs#*BEGIN-$blocktype}"
+          blockargs="${blockargs# }"
+          blockargs="${blockargs% $COMMENT_END}"
+
+          block=""
+          while
+              read -r line \
+              && [[ "$line" != "$COMMENT_START END-$blocktype"* \
+              && "$line" != *"END-$blocktype $COMMENT_END"   ]]
+          do
+              printf -v block "%s\n%s" "$block" "$line"
+          done
+          if ! declare -f -F "shinclude-block-$blocktype" >/dev/null;then
+              shlog -l error -x 2 "No such block type '$blocktype'"
+          fi
+          if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
+              shlog -l debug "PASS $pass: SKIP '$blocktype' '$blockargs'"
+              printf "%s%s\n%s\n" "$begin" "$block" "$line"
+              continue;
+          fi
+          shlog -l debug "PASS $pass: RUN $blocktype '$blockargs'"
+          shlog -l trace "PASS $pass: RUN $blocktype '$blockargs' '$block'"
+          newblock="$("shinclude-block-$blocktype" "$blockargs" "$block" "$infile")"
+          ret=$?
+          if [[ $ret != 0 ]];then
+              shlog -l error -x 2 "$ret: Error running '$blocktype' '$blockargs'"
+          fi
+          printf "%s\n%s\n\n%s\n" "$begin" "$newblock" "$line"
+      else
+          shlog -l trace "PASS $pass: (ign) $line"
+          printf "%s\n" "$line"
+      fi
+    done < "$infile"
+}
+
+## ## OPTIONS
+_parse_args() {
+
+    while [[ "$1" != '-' && "$1" = -* ]];do
+        case "$1" in
+            -h)
+                ## ### -h, --help
+                ##
+                ## help
+                ##
+                usage
+                exit ;;
+            -i|--inplace)
+                ## ### -i, --inplace
+                ##
+                ## Edit the file in-place
+                ##
+                IN_PLACE=true 
+                ;;
+            -p|--shinclude-path)
+                ## ### -p, --shinclude-path PATH
+                ##
+                ## Add path to path to look for `INCLUDE` and `RENDER`.
+                ##
+                ## Can be repeated to add multiple paths.
+                ##
+                ## Default: `("$PWD")`
+                ##
+                SHINCLUDE_PATH+=("$2"); shift
+                ;;
+            -c|--coment-style)
+                ## ### -c, --comment-style COMMENT_STYLE
+                ##
+                ## Comment style. See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_STYLE="$2"; shift
+                ;;
+            -cs|--comment-start)
+                ## ### -cs, --comment-start COMMENT_START
+                ##
+                ## Comment start. Overrides language-specific comment start.
+                ##
+                ## See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_START="$2"; shift
+                ;;
+            -ce|--comment-end)
+                ## ### -ce, --comment-end COMMENT_END
+                ##
+                ## Comment end. Overrides language-specific comment end.
+                ##
+                ## See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_END="$2"; shift
+                ;;
+            -d|--info)
+                ## ### -d, --info
+                ##
+                ## Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=1
+                ;;
+            -dd|--debug) 
+                ## ### -dd, --debug
+                ##
+                ## Enable trace logging (`$LOGLEVEL=2`).
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=2
+                ;;
+            -ddd|--trace) 
+                ## ### -ddd, --trace
+                ##
+                ## Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
+                ##
+                # shellcheck disable=2034
+                LOGLEVEL=2
+                set -x
+                ;;
+        esac
+        shift
+    done
+
+    if [[ "$1" && "$1" == "-" ]] ; then infile=/dev/stdin
+    elif [[ "$1"              ]] ; then infile="$1"
+    elif [[ -e "README.md"    ]] ; then infile="README.md"
+    else shlog -l error -x 2 "No file or stdin passed"; fi
+
+    if [[ $IN_PLACE && "$infile" = "/dev/stdin" ]];then
+        usage "Cannot edit STDIN in-place"
+        exit 1
+    fi
+
+    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$infile")}
+    if [[ -z "$COMMENT_STYLE" ]];then
+        shlog -l error -x 2 "Unable to detect comment style."
+    fi
+    COMMENT_START=${COMMENT_START:-${COMMENT_STYLE_START[$COMMENT_STYLE]}}
+    COMMENT_END=${COMMENT_END:-${COMMENT_STYLE_END[$COMMENT_STYLE]}}
+    shlog -l debug "COMMENT_STYLE=$COMMENT_STYLE"
+    shlog -l debug "COMMENT_START=$COMMENT_START"
+    shlog -l debug "COMMENT_END=$COMMENT_END"
+    shlog -l debug "infile=$infile"
+}
+
+_parse_args "$@"
+
+# first pass
+tempfile1=$(mktemp --tmpdir)
+shlog -l debug "tempfile1=$tempfile1"
+trap 'rm $tempfile1' EXIT INT TERM
+_parse_lines 1 "$infile" > "$tempfile1"
+
+# second pass
+tempfile2=$(mktemp --tmpdir)
+shlog -l debug "tempfile2=$tempfile2"
+trap 'rm $tempfile2' EXIT INT TERM
+_parse_lines 2 "$tempfile1" > "$tempfile2"
+
+if [[ $IN_PLACE ]];then
+    cp "$tempfile2" "$infile"
+else
+    cat "$tempfile2"
+fi
+

@@ -1,0 +1,422 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SHINCLUDE" "1" "June 2016" "" ""
+.
+.SH "NAME"
+\fBshinclude\fR \- include directives for code/markup comments
+.
+.SH "SYNOPSIS"
+\fBshinclude\fR [options\.\.\.] \fIfile\fR
+.
+.br
+\fBshinclude\fR [options\.\.\.] \fI\-\fR
+.
+.br
+.
+.SH "BLOCK DIRECTIVES"
+Included content is fenced by comments that contain \fBBEGIN\-<block\-type>\fR and \fBEND\-<block\-type>\fR respectively\.
+.
+.P
+Fencing comments \fBmust\fR start at the start of the line\.
+.
+.IP "" 4
+.
+.nf
+
+<block\-type> ::= "EVAL" | "INCLUDE" | "RENDER" | "BANNER" | "MARKDOWN\-TOC"
+<nl> ::= "\en"
+<spc> ::= " "
+<begin\-line> ::= <com\-start> <spc> BEGIN\-<block\-type> <block\-arg>+ <spc>?  <com\-end>?
+<end\-line> ::= <com\-start> <spc> END\-<block\-type> <spc>? <com\-end>?
+<directive> ::= <begin\-line> <nl> <content\-line>* <end\-line> <nl>
+.
+.fi
+.
+.IP "" 0
+.
+.SS "EVAL"
+Evaluates the arguments as a shell expression\. \fBBE CAREFUL\fR
+.
+.P
+EVAL Runs on \fBfirst\fR pass
+.
+.IP "" 4
+.
+.nf
+
+# BEGIN\-EVAL wc *
+# END\-EVAL
+.
+.fi
+.
+.IP "" 0
+.
+.P
+will be transformed to
+.
+.IP "" 4
+.
+.nf
+
+# BEGIN\-EVAL wc *
+
+  21   171  1085 LICENSE
+  51   106   978 Makefile
+ 290   461  4058 README\.md
+ 558  1267 12212 shinclude
+ 275   828  5565 shinclude\.1
+1723  4100 36080 total
+
+# END\-EVAL
+.
+.fi
+.
+.IP "" 0
+.
+.SS "INCLUDE"
+Include data from a file\.
+.
+.P
+\fBINCLUDE\fR runs on \fBfirst\fR pass\.
+.
+.IP "" 4
+.
+.nf
+
+# BEGIN\-INCLUDE LICENSE
+# END\-INCLUDE
+.
+.fi
+.
+.IP "" 0
+.
+.P
+will be transformed to
+.
+.IP "" 4
+.
+.nf
+
+# BEGIN\-INCLUDE LICENSE
+The MIT License (MIT)
+
+Copyright (c) 2016 Konstantin Baierer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software\.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE\.
+# END\-INCLUDE
+.
+.fi
+.
+.IP "" 0
+.
+.SS "RENDER"
+Renders a file to markdown using a \fIshell expression\fR\.
+.
+.P
+The actual work is done by \fBshrender\fR \fIhttps://github\.com/kba/shrender\fR\. Have
+.
+.P
+Runs on \fBfirst\fR pass
+.
+.SS "MARKDOWN\-TOC"
+(source \fI\./src/block\-MARKDOWN\-TOC\.bash#L3\fR, test \fI\./test/MARKDOWN\-TOC\fR)
+.
+.P
+Reads in the file and outputs a table of contents of the markdown headings\.
+.
+.P
+Runs on \fBsecond\fR pass
+.
+.IP "" 4
+.
+.nf
+
+# First Heading
+
+[rem]: BEGIN\-MARKDOWN\-TOC
+[rem]: END\-MARKDOWN\-TOC
+
+## Second\-Level Heading
+.
+.fi
+.
+.IP "" 0
+.
+.P
+will be transformed to (\fBshinclude \-cs \'[rem]:\' \-ce \'\' \-\fR)
+.
+.IP "" 4
+.
+.nf
+
+# First Heading
+
+[rem]: BEGIN\-MARKDOWN\-TOC
+
+* [First Heading](#first\-heading)
+    * [Second\-Level  Heading](#second\-level\-heading)
+
+[rem]: END\-MARKDOWN\-TOC
+
+## Second\-Level Heading
+.
+.fi
+.
+.IP "" 0
+.
+.P
+String to indent a single level\. Default: \fB\fR
+.
+.P
+Regex used to detect and tokenize headings\.
+.
+.P
+Default: \fB^(##+)\es*(\.*)\fR
+.
+.P
+Indentation: Concatenate \fB$MARKDOWN_TOC_INDENT\fR times the number of leading \fB#\fR\- 2
+.
+.P
+Link target: Start with Link Text
+.
+.IP "\(bu" 4
+lowercase
+.
+.IP "\(bu" 4
+remove \fB$ ` ( ) \. ,\fR
+.
+.IP "\(bu" 4
+Replace all non\-alphanumeric characters with \fB\-\fR
+.
+.IP "\(bu" 4
+If link target not used previously
+.
+.IP "\(bu" 4
+then set \fBEXISTING_HEADINGS[$link_target]\fR to \fB1\fR
+.
+.IP "\(bu" 4
+else increase \fBEXISTING_HEADINGS[$link_target]\fR by one and concatenate
+.
+.IP "" 0
+.
+.SH "COMMENT STYLES"
+.
+.SS "xml"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+  <!\-\- BEGIN\-\.\.\. \-\->
+  <!\-\- END\-\.\.\. \-\->
+.
+.fi
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB\.html\fR
+.
+.IP "\(bu" 4
+\fB*\.xml\fR
+.
+.IP "" 0
+.
+.SS "markdown"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+[]: BEGIN\-\.\.\.
+[]: END\-\.\.\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Extensions: * \fB*\.ronn\fR * \fB*\.md\fR
+.
+.SS "pound"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+# BEGIN\-\.\.\.
+# END\-\.\.\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Extensions:
+.
+.IP "\(bu" 4
+\fB*\.sh\fR
+.
+.IP "\(bu" 4
+\fB*\.bash\fR
+.
+.IP "\(bu" 4
+\fB*\.zsh\fR
+.
+.IP "\(bu" 4
+\fB*\.py\fR
+.
+.IP "\(bu" 4
+\fB*\.pl\fR
+.
+.IP "\(bu" 4
+\fB*\.PL\fR
+.
+.IP "\(bu" 4
+\fB*\.coffee\fR
+.
+.IP "" 0
+.
+.SS "slashstar"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+/* BEGIN\-\.\.\. */
+/* END\-\.\.\. */
+.
+.fi
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB*\.cpp\fR
+.
+.IP "\(bu" 4
+\fB*\.cxx\fR
+.
+.IP "\(bu" 4
+\fB*\.java\fR
+.
+.IP "" 0
+.
+.SS "doubleslash"
+File Extensions:
+.
+.IP "" 4
+.
+.nf
+
+// BEGIN\-\.\.\.
+// END\-\.\.\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB*\.c\fR
+.
+.IP "\(bu" 4
+\fB*\.js\fR
+.
+.IP "" 0
+.
+.SS "doublequote"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+" BEGIN\-\.\.\.
+" END\-\.\.\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+File Extensions:
+.
+.IP "\(bu" 4
+\fB*\.vim\fR
+.
+.IP "" 0
+.
+.SS "doubleslashbang"
+Comment style:
+.
+.IP "" 4
+.
+.nf
+
+//! BEGIN\-\.\.\.
+//! END\-\.\.\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Extensions:
+.
+.IP "\(bu" 4
+\fB*\.jade\fR
+.
+.IP "\(bu" 4
+\fB*\.pug\fR
+.
+.IP "" 0
+.
+.SH "AUTHOR"
+Konstantin Baierer \fIhttps://github\.com/kba\fR
+.
+.SH "SEE ALSO"
+\fBshrender(1)\fR, \fBfiglet(1)\fR, \fBshlog(1)\fR
+.
+.SH "COPYRIGHT"
+The MIT License (MIT)
+.
+.P
+Copyright (c) 2016 Konstantin Baierer
+.
+.P
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+.
+.P
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software\.
+.
+.P
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE\.
