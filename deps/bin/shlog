@@ -54,14 +54,14 @@ shlog () {
             ## * -x,--exit EXIT_STATUS: Exit the shell after emitting the log message.
             -x|--exit) exit_status=$2; shift ;;
             ## -d,--dump VARNAME: Dump the definition of `VARNAME` instead of a log message.
-            -d|--dump) msg=$(shlog-dump "$2"); shift ;;
+            -d|--dump) msg=$(shlog::dump "$2"); shift ;;
             ## * -v,--verbose: Dump the configuration of shlog upon initialization. See
-            ##   [`SHLOG_SELFDEBUG`](#shlog-selfdebug)
+            ##   [`SHLOG_SELFDEBUG`](#shlogselfdebug)
             -v|--verbose) SHLOG_SELFDEBUG="true"; shift ;;
         esac
         shift
     done
-    if [[ -z "$1" ]];then
+    if [[ -z "$1" && -z "$msg" ]];then
         shlog::usage
         exit
     fi
@@ -113,12 +113,12 @@ shlog () {
 }
 CSI="\e["
 
-#api: ### `shlog::init`
+#api: ### `shlog::reload`
 #api: [source](__CURFILE__#L__CURLINE__)
 #api:
 #api: (Re-)initialize the logging by reading configuration files and setting up variables.
 #api:
-shlog::init () {
+shlog::reload () {
 
     typeset -gA \
         SHLOG_LEVELS \
@@ -349,11 +349,28 @@ shlog::selfdebug () {
         SHLOG_DATE_FORMAT
 }
 
+#api: ### `shlog::pipe`
+#api: 
+#api: Read lines from STDIN and log them.
+#api:
+#api: See [`shlog`](#shlog) for options.
+#api:
+shlog::pipe () {
+    declare -a shlogargs=()
+    while [[ "$1" = -* ]];do
+        shlogargs+=("$1" "$2")
+        shift; shift;
+    done
+    local line
+    while read -r line;do
+        shlog "${shlogargs[@]}" "$line"
+    done
+}
 # detect if being sourced and
 # export if so else execute
 # main function with args
-shlog::init
-if [[ ${BASH_SOURCE[0]} != $0 ]]; then
+shlog::reload
+if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
     export -f shlog shlog::dump
 else
     shlog "${@}"
