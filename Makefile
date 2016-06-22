@@ -26,7 +26,9 @@ SCRIPT_INCLUDES = src/style.bash $(wildcard src/block-*.bash)
 
 export SHLOG_TERM=info
 
-.PHONY: test
+.PHONY: test all
+
+all: deps $(SCRIPT) $(SCRIPT).1 README.md
 
 #
 # Dependencies
@@ -58,8 +60,6 @@ test/tsht:
 #
 # Build
 #
-
-dist: deps $(SCRIPT) $(SCRIPT).1 README.md
 
 # Assemble the script
 $(SCRIPT): $(SCRIPT_SOURCES)
