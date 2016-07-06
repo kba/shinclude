@@ -1,0 +1,6 @@
+<!-- BEGIN-BANNER -f standard -wrap '<pre>' '</pre>' foo -->
+<pre>
+    foo
+</pre>
+
+<!-- END-BANNER -->

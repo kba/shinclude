@@ -8,7 +8,11 @@ BINARY="../../shinclude"
 # $BINARY -c xml input.md |sed 's/^/#|| /'
 
 actual="$($BINARY -c xml input.md)"
+if which figlet >/dev/null;then
+equals_file "$actual" expected "BANNER works"
+else
+equals_file "$actual" expected.nofiglet "BANNER works"
+fi
 # echo "$actual"
 # echo "$(cat expected)"
 
-equals_file "$actual" expected "BANNER works"
