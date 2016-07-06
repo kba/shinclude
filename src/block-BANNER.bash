@@ -59,7 +59,12 @@ shinclude-block-BANNER() {
         shlog -l info "Using bundled font '$bundledfont'."
         fontname="$bundledfont"
     fi
-    figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+    if which figlet >/dev/null;then
+        figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+    else
+        shlog -l warn "Figlet not installed"
+        figletOutput="    $*"
+    fi
     if [[ $? != 0 ]];then
         shlog -l error -x 2 "Figlet threw an error!"
     fi
