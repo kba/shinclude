@@ -7,7 +7,7 @@ _parse_args() {
 
     while [[ "$1" != '-' && "$1" = -* ]];do
         case "$1" in
-            -h)
+            -h|--help)
                 ## ### -h, --help
                 ##
                 ## help
@@ -37,7 +37,18 @@ _parse_args() {
                 ##
                 ## Comment style. See [COMMENT STYLES](#comment-styles).
                 ##
+                ## Use `-c list` to get a list of available styles.
+                ##
                 COMMENT_STYLE="$2"; shift
+                if [[ "$COMMENT_STYLE" = "list" ]];then
+                    echo "Available Comment Styles:"
+                    for style in "${!COMMENT_STYLE_START[@]}";do
+                        printf "* %-15s %4s BEGIN-... %-5s\n" "$style" \
+                            "${COMMENT_STYLE_START[$style]}" \
+                            "${COMMENT_STYLE_END[$style]}"
+                    done
+                    exit 0
+                fi
                 ;;
             -cs|--comment-start)
                 ## ### -cs, --comment-start COMMENT_START

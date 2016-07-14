@@ -108,6 +108,8 @@ Default: `("$PWD")`
 
 Comment style. See [COMMENT STYLES](#comment-styles).
 
+Use `-c list` to get a list of available styles.
+
 ### -cs, --comment-start COMMENT_START
 
  Comment start. Overrides language-specific comment start.

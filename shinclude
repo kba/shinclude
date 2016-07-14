@@ -534,13 +534,29 @@ shinclude::read_lines() {
 # Show usage
 #
 usage() {
-  echo "Usage: $0 [-h] [-c COMMENT_STYLE] [-i] <action> [input-file]"
+  echo "Usage: $0 [options] [input-file...]"
   [[ ! -z "$1" ]] && echo -e "\n!! $* !!\n"
   echo '
-  Input File:
+    Options:
+        -h --help
+            Show this help
+        -i --inplace 
+            Replace blocks in-place instead of writing to STDOUT
+        -p --shinclude-path
+            Add this file to the search path for referenced files
+        -c --coment-style STYLE
+            Use this comment style for detecting block delimiters.
+            Use `-c list` to get a list of available styles.
+        -cs --comment-start STRING
+            Use this string for comment start tokens
+        -ce --comment-end STRING
+            Use this string for comment end tokens
+        -d -dd -ddd
+            Enable increasingly verbose debug logging.
 
-    If input-file is "-", read from STDIN.
-    If no input-file is given, assume "./README.md"'
+    Input File:
+        If input-file is "-", read from STDIN.
+        If no input-file is given, assume "./README.md"'
 }
 
 #
@@ -552,7 +568,7 @@ _parse_args() {
 
     while [[ "$1" != '-' && "$1" = -* ]];do
         case "$1" in
-            -h)
+            -h|--help)
                 ## ### -h, --help
                 ##
                 ## help
@@ -582,7 +598,18 @@ _parse_args() {
                 ##
                 ## Comment style. See [COMMENT STYLES](#comment-styles).
                 ##
+                ## Use `-c list` to get a list of available styles.
+                ##
                 COMMENT_STYLE="$2"; shift
+                if [[ "$COMMENT_STYLE" = "list" ]];then
+                    echo "Available Comment Styles:"
+                    for style in "${!COMMENT_STYLE_START[@]}";do
+                        printf "* %-15s %4s BEGIN-... %-5s\n" "$style" \
+                            "${COMMENT_STYLE_START[$style]}" \
+                            "${COMMENT_STYLE_END[$style]}"
+                    done
+                    exit 0
+                fi
                 ;;
             -cs|--comment-start)
                 ## ### -cs, --comment-start COMMENT_START
