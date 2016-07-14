@@ -285,7 +285,11 @@ BLOCK_PASS[RENDER]=1
 source "$(which shrender)"
 
 shinclude-block-RENDER() {
-    eval set -- "$1"
+    dollarone="$1"
+    for p in "${SHINCLUDE_PATH[@]}";do
+        dollarone="-p '$p' $dollarone"
+    done
+    eval set -- "$dollarone"
     shlog -l debug "shrender $*"
     shrender "$@"
 }
