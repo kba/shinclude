@@ -50,7 +50,7 @@ HEADING_REGEX='^(##+)\s*(.*)'
 ## #### Heading-to-Link algorithm
 ##
 # shellcheck disable=2004
-_heading_to_toc() {
+shinclude::markdown::heading_to_toc() {
     local heading indent link_text link_target
     pounds="$1"
     link_text="$2"
@@ -67,6 +67,7 @@ _heading_to_toc() {
     ## * If link target not used previously
     ## * then set `EXISTING_HEADINGS[$link_target]` to `1`
     ## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+    ##
     link_target="${link_text,,}"
     link_target="${link_target//[\$\`()\.,%:\?]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"
@@ -82,7 +83,7 @@ _heading_to_toc() {
         "$link_target"
 }
 
-shinclude-block-MARKDOWN-TOC () {
+shinclude::block::MARKDOWN-TOC () {
     local blockargs block line infile
     typeset -A EXISTING_HEADINGS
     EXISTING_HEADINGS=()
@@ -90,7 +91,7 @@ shinclude-block-MARKDOWN-TOC () {
     IFS=$'\n'
     while read line;do
         if [[ $line =~ $HEADING_REGEX ]];then
-            _heading_to_toc "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+            shinclude::markdown::heading_to_toc "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
         fi
     done < "$infile"
     shlog -l debug "MARKDOWN-TOC: $(declare -p EXISTING_HEADINGS)"

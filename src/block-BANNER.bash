@@ -24,7 +24,7 @@ typeset -A BLOCK_PASS
 # shellcheck disable=2034
 BLOCK_PASS[BANNER]=1
 
-shinclude-block-BANNER() {
+shinclude::block::BANNER() {
     eval set -- "$1" || shlog -l error -x 2 "Error parsing arguments to BANNER"
     shlog -l trace "_draw_banner '$1' '$2' '$3' '$4' '$5' '$6' '$7' '$8'"
     fontname="standard"

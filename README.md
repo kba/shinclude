@@ -218,9 +218,7 @@ will be transformed to
 <!-- BEGIN-RENDER src/block-RENDER.bash -->
 ### RENDER
 
-Renders a file to markdown using a [shell expression](#render_ext).
-
-The actual work is done by [`shrender`](https://github.com/kba/shrender). Have
+Renders a file to markdown using a [`shrender`](https://github.com/kba/shrender).
 
 Runs on **first** pass
 

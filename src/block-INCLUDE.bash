@@ -37,7 +37,7 @@ typeset -A BLOCK_PASS
 # shellcheck disable=2034
 BLOCK_PASS[INCLUDE]=1
 
-shinclude-block-INCLUDE () {
+shinclude::block::INCLUDE () {
     local blockargs includefile
     blockargs="$1"
     local IFS=$'\n'

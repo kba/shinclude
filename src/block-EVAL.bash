@@ -25,7 +25,7 @@ typeset -A BLOCK_PASS
 # shellcheck disable=2034
 BLOCK_PASS[EVAL]=1
 
-shinclude-block-EVAL () {
+shinclude::block::EVAL () {
     local blockargs
     blockargs="$1"
     printf "%s" "$(eval "${blockargs//\//\/}")" 

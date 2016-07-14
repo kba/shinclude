@@ -114,13 +114,13 @@ _parse_args "$@"
 tempfile1=$(mktemp --tmpdir)
 shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-_read_lines 1 "$infile" > "$tempfile1"
+shinclude::read_lines 1 "$infile" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)
 shlog -l debug "tempfile2=$tempfile2 (pass 2)"
 trap 'rm $tempfile2' EXIT INT TERM
-_read_lines 2 "$tempfile1" > "$tempfile2"
+shinclude::read_lines 2 "$tempfile1" > "$tempfile2"
 
 if [[ $IN_PLACE ]];then
     cp "$tempfile2" "$infile"

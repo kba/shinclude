@@ -1,8 +1,6 @@
 ## ### RENDER
 ##
-## Renders a file to markdown using a [shell expression](#render_ext).
-##
-## The actual work is done by [`shrender`](https://github.com/kba/shrender). Have
+## Renders a file to markdown using a [`shrender`](https://github.com/kba/shrender).
 ##
 ## Runs on **first** pass
 ##
@@ -12,7 +10,7 @@ BLOCK_PASS[RENDER]=1
 
 source "$(which shrender)"
 
-shinclude-block-RENDER() {
+shinclude::block::RENDER() {
     dollarone="$1"
     for p in "${SHINCLUDE_PATH[@]}";do
         dollarone="-p '$p' $dollarone"

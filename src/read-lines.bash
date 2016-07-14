@@ -3,7 +3,7 @@
 #
 
 # shellcheck disable=2094
-_read_lines() {
+shinclude::read_lines() {
     local pass line begin end blocktype blockargs block infile
     pass=$1
     infile=$2
@@ -30,7 +30,7 @@ _read_lines() {
           do
               printf -v block "%s\n%s" "$block" "$line"
           done
-          if ! declare -f -F "shinclude-block-$blocktype" >/dev/null;then
+          if ! declare -f -F "shinclude::block::$blocktype" >/dev/null;then
               shlog -l error -x 2 "No such block type '$blocktype'"
           fi
           if [[ ${BLOCK_PASS[$blocktype]} != $pass ]];then
@@ -40,7 +40,7 @@ _read_lines() {
           fi
           shlog -l debug "PASS $pass: RUN $blocktype '$blockargs'"
           shlog -l trace "PASS $pass: RUN $blocktype '$blockargs' '$block'"
-          newblock="$("shinclude-block-$blocktype" "$blockargs" "$block" "$infile")"
+          newblock="$("shinclude::block::$blocktype" "$blockargs" "$block" "$infile")"
           ret=$?
           if [[ $ret != 0 ]];then
               shlog -l error -x 2 "$ret: Error running '$blocktype' '$blockargs'"
