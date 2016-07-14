@@ -7,7 +7,7 @@ MANDIR = $(PREFIX)/share/man/man1
 SHAREDIR = $(PREFIX)/share/$(SCRIPT)
 
 RM = rm -rfv
-CP = cp -rfva
+CP = cp -rfa
 MKDIR = mkdir -p
 RONN = ronn
 
@@ -90,7 +90,7 @@ realclean: clean
 # Install
 #
 
-install: dist
+install: all
 	$(MKDIR) $(BINDIR)
 	sed 's,^SHINCLUDESHARE=.*,SHINCLUDESHARE="$(SHAREDIR)",' $(SCRIPT) > "$(BINDIR)/$(SCRIPT)"
 	chmod a+x $(BINDIR)/$(SCRIPT)
