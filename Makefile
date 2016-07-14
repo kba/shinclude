@@ -12,15 +12,16 @@ MKDIR = mkdir -p
 RONN = ronn
 
 SCRIPT_SOURCES = \
-				 src/shinclude.bash \
+				 src/header.bash \
 				 src/block-BANNER.bash \
 				 src/block-EVAL.bash \
 				 src/block-INCLUDE.bash \
 				 src/block-MARKDOWN-TOC.bash \
 				 src/block-RENDER.bash \
 				 src/style.bash \
+				 src/read-lines.bash \
 				 src/usage.bash \
-				 src/main.bash
+				 src/cli.bash
 				
 SCRIPT_INCLUDES = src/style.bash $(wildcard src/block-*.bash)
 

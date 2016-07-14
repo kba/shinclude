@@ -6,7 +6,7 @@ shinclude(1) -- include directives for code/markup comments
 `shinclude` [options...] <file><br>
 `shinclude` [options...] <-><br>
 
-[]: BEGIN-RENDER src/main.bash
+[]: BEGIN-RENDER src/cli.bash
 []: END-RENDER
 
 ## BLOCK DIRECTIVES

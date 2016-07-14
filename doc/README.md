@@ -41,7 +41,7 @@ To install to your home directory (`$HOME/.local/bin/shinclude`):
 make install PREFIX=$HOME/.local
 ```
 
-<!-- BEGIN-RENDER src/main.bash -->
+<!-- BEGIN-RENDER src/cli.bash -->
 <!-- END-RENDER -->
 
 <!-- BEGIN-INCLUDE doc/SYNTAX.md -->

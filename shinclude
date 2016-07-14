@@ -476,26 +476,12 @@ _detect_comment_style() {
         echo 'xml'
     fi
 }
-# ### usage
-#
-# Show usage
-#
-usage() {
-  echo "Usage: $0 [-h] [-c COMMENT_STYLE] [-i] <action> [input-file]"
-  [[ ! -z "$1" ]] && echo -e "\n!! $* !!\n"
-  echo '
-  Input File:
-
-    If input-file is "-", read from STDIN.
-    If no input-file is given, assume "./README.md"'
-}
-
 #
 # main
 #
 
 # shellcheck disable=2094
-_parse_lines() {
+_read_lines() {
     local pass line begin end blocktype blockargs block infile
     pass=$1
     infile=$2
@@ -544,6 +530,23 @@ _parse_lines() {
       fi
     done < "$infile"
 }
+# ### usage
+#
+# Show usage
+#
+usage() {
+  echo "Usage: $0 [-h] [-c COMMENT_STYLE] [-i] <action> [input-file]"
+  [[ ! -z "$1" ]] && echo -e "\n!! $* !!\n"
+  echo '
+  Input File:
+
+    If input-file is "-", read from STDIN.
+    If no input-file is given, assume "./README.md"'
+}
+
+#
+# main
+#
 
 ## ## OPTIONS
 _parse_args() {
@@ -655,15 +658,15 @@ _parse_args "$@"
 
 # first pass
 tempfile1=$(mktemp --tmpdir)
-shlog -l debug "tempfile1=$tempfile1"
+shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-_parse_lines 1 "$infile" > "$tempfile1"
+_read_lines 1 "$infile" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)
-shlog -l debug "tempfile2=$tempfile2"
+shlog -l debug "tempfile2=$tempfile2 (pass 2)"
 trap 'rm $tempfile2' EXIT INT TERM
-_parse_lines 2 "$tempfile1" > "$tempfile2"
+_read_lines 2 "$tempfile1" > "$tempfile2"
 
 if [[ $IN_PLACE ]];then
     cp "$tempfile2" "$infile"
