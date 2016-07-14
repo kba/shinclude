@@ -1,0 +1,4 @@
+/* BEGIN-RENDER sample.jade */
+<bar>quux</bar>
+
+/* END-RENDER */

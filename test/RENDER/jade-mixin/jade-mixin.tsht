@@ -1,0 +1,6 @@
+#!/usr/bin/env tsht
+BINARY="../../../shinclude"
+
+use colordiff
+
+equals_file "$($BINARY input.java)" expected
