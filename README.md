@@ -21,6 +21,16 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [Project specific](#project-specific)
 	* [System-wide](#system-wide)
 	* [Home directory](#home-directory)
+* [OPTIONS](#options)
+	* [-h, --help](#-h---help)
+	* [-i, --inplace](#-i---inplace)
+	* [-p, --shinclude-path PATH](#-p---shinclude-path-path)
+	* [-c, --comment-style COMMENT_STYLE](#-c---comment-style-comment_style)
+	* [-cs, --comment-start COMMENT_START](#-cs---comment-start-comment_start)
+	* [-ce, --comment-end COMMENT_END](#-ce---comment-end-comment_end)
+	* [-d, --info](#-d---info)
+	* [-dd, --debug](#-dd---debug)
+	* [-ddd, --trace](#-ddd---trace)
 * [BLOCK DIRECTIVES](#block-directives)
 	* [EVAL](#eval)
 	* [INCLUDE](#include)
@@ -30,7 +40,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 		* [`$HEADING_REGEX`](#heading_regex)
 		* [Heading-to-Link algorithm](#heading-to-link-algorithm)
 	* [BANNER](#banner)
-		* [Options](#options)
+		* [Options](#options-1)
 			* [-f, --font FONT](#-f---font-font)
 			* [-i, --indent INDENT](#-i---indent-indent)
 			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after)
@@ -76,8 +86,51 @@ To install to your home directory (`$HOME/.local/bin/shinclude`):
 make install PREFIX=$HOME/.local
 ```
 
-<!-- BEGIN-RENDER src/shinclude.bash -->
+<!-- BEGIN-RENDER src/main.bash -->
+## OPTIONS
+### -h, --help
 
+help
+
+### -i, --inplace
+
+Edit the file in-place
+
+### -p, --shinclude-path PATH
+
+Add path to path to look for `INCLUDE` and `RENDER`.
+
+Can be repeated to add multiple paths.
+
+Default: `("$PWD")`
+
+### -c, --comment-style COMMENT_STYLE
+
+Comment style. See [COMMENT STYLES](#comment-styles).
+
+### -cs, --comment-start COMMENT_START
+
+ Comment start. Overrides language-specific comment start.
+
+See [COMMENT STYLES](#comment-styles).
+
+### -ce, --comment-end COMMENT_END
+
+ Comment end. Overrides language-specific comment end.
+
+See [COMMENT STYLES](#comment-styles).
+
+### -d, --info
+
+Enable debug logging ([`$LOGLEVEL=1`](#loglevel))
+
+### -dd, --debug
+
+Enable trace logging (`$LOGLEVEL=2`).
+
+### -ddd, --trace
+
+Enable trace logging (`$LOGLEVEL=2`) and print every statement as it is executed.
 
 <!-- END-RENDER -->
 
