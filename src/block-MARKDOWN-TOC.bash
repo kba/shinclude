@@ -54,7 +54,6 @@ shinclude::markdown::heading_to_toc() {
     local heading indent link_text link_target
     pounds="$1"
     link_text="$2"
-    shlog -l trace "MARKDOWN-TOC: Link Text: '$link_text' Link level: ${#pounds}"
     ## Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
     ##
     indent=${pounds#\##}
@@ -71,11 +70,14 @@ shinclude::markdown::heading_to_toc() {
     link_target="${link_text,,}"
     link_target="${link_target//[\$\`()\.,%:\?]/}"
     link_target="${link_target//[^A-Za-z0-9_]/-}"
-    if [[ -z ${EXISTING_HEADINGS[$link_target]} ]];then
-        EXISTING_HEADINGS["$link_target"]=1
-    else
-        link_target="${link_target}-${EXISTING_HEADINGS[$link_target]}"
-        (( EXISTING_HEADINGS[${link_target%-*}] += 1 ))
+    shlog -l trace "MARKDOWN-TOC: Link Text: '$link_text' Link level: '${#pounds}' Link target: '$link_target'"
+    if [[ -n "$link_target" ]];then
+        if [[ -z ${EXISTING_HEADINGS[$link_target]} ]];then
+            EXISTING_HEADINGS["$link_target"]=1
+        else
+            link_target="${link_target}-${EXISTING_HEADINGS[$link_target]}"
+            (( EXISTING_HEADINGS[${link_target%-*}] += 1 ))
+        fi
     fi
     printf "%s* [%s](#%s)\n" \
         "$indent" \
