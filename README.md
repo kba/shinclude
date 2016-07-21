@@ -273,7 +273,7 @@ Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`
 Link target: Start with Link Text
 
 * lowercase
-* remove `` $ ` ( ) . ,``
+* remove `` $ ` ( ) . , % : ? / @ !``
 * Replace all non-alphanumeric characters with `-`
 * If link target not used previously
 * then set `EXISTING_HEADINGS[$link_target]` to `1`
