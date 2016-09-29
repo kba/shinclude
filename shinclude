@@ -247,7 +247,7 @@ shinclude::markdown::heading_to_toc() {
         echo "${link_text,,}" \
             | sed -e 's,<[^>]*>,,g' \
             | tr -d '$`().,%:?/@![]' \
-            | sed -e 's,[^a-z0-9_],-,g'
+            | sed -e 's,[^[:alnum:]_],-,g'
         )
     shlog -l trace "MARKDOWN-TOC: Link Text: '$link_text' Link level: '${#pounds}' Link target: '$link_target'"
     if [[ -n "$link_target" ]];then
