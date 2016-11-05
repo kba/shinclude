@@ -97,17 +97,17 @@ _parse_args() {
         shift
     done
 
-    if [[ "$1" && "$1" == "-" ]] ; then infile=/dev/stdin
-    elif [[ "$1"              ]] ; then infile="$1"
-    elif [[ -e "README.md"    ]] ; then infile="README.md"
+    if [[ "$1" && "$1" == "-" ]] ; then SHINCLUDE_INFILE=/dev/stdin
+    elif [[ "$1"              ]] ; then SHINCLUDE_INFILE="$1"
+    elif [[ -e "README.md"    ]] ; then SHINCLUDE_INFILE="README.md"
     else shlog -l error -x 2 "No file or stdin passed"; fi
 
-    if [[ $IN_PLACE && "$infile" = "/dev/stdin" ]];then
+    if [[ $IN_PLACE && "$SHINCLUDE_INFILE" = "/dev/stdin" ]];then
         usage "Cannot edit STDIN in-place"
         exit 1
     fi
 
-    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$infile")}
+    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$SHINCLUDE_INFILE")}
     if [[ -z "$COMMENT_STYLE" ]];then
         shlog -l error -x 2 "Unable to detect comment style."
     fi
@@ -116,16 +116,17 @@ _parse_args() {
     shlog -l debug "COMMENT_STYLE=$COMMENT_STYLE"
     shlog -l debug "COMMENT_START=$COMMENT_START"
     shlog -l debug "COMMENT_END=$COMMENT_END"
-    shlog -l debug "infile=$infile"
+    shlog -l debug "SHINCLUDE_INFILE=$SHINCLUDE_INFILE"
 }
 
+export COMMENT_STYLE SHINCLUDE_INFILE
 _parse_args "$@"
 
 # first pass
 tempfile1=$(mktemp --tmpdir)
 shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-shinclude::read_lines 1 "$infile" > "$tempfile1"
+shinclude::read_lines 1 "$SHINCLUDE_INFILE" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)
@@ -134,7 +135,7 @@ trap 'rm $tempfile2' EXIT INT TERM
 shinclude::read_lines 2 "$tempfile1" > "$tempfile2"
 
 if [[ $IN_PLACE ]];then
-    cp "$tempfile2" "$infile"
+    cp "$tempfile2" "$SHINCLUDE_INFILE"
 else
     cat "$tempfile2"
 fi

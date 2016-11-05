@@ -43,13 +43,13 @@ BLOCK_PASS[BANNER]=1
 shinclude::block::BANNER() {
     eval set -- "$1" || shlog -l error -x 2 "Error parsing arguments to BANNER"
     shlog -l trace "_draw_banner '$1' '$2' '$3' '$4' '$5' '$6' '$7' '$8'"
-    fontname="standard"
-    prefix=""
-    suffix=""
-    indent=""
-    license_printf="\nThis software may be modified and distributed under the terms
+    local fontname="standard"
+    local prefix=""
+    local suffix=""
+    local indent=""
+    local license_printf="\nThis software may be modified and distributed under the terms
 of the %s license.  See the LICENSE file for details.\n \n"
-    copyright_printf="\nCopyright (c) %s\n \n"
+    local copyright_printf="\nCopyright (c) %s\n \n"
     ##
     ## #### Options
     while [[ "$1" = -* ]];do
@@ -88,13 +88,19 @@ of the %s license.  See the LICENSE file for details.\n \n"
         esac
         shift
     done
+    local text="$*"
+    if [[ -z "$text" ]];then
+        text="$SHINCLUDE_INFILE"
+        text="${text##*/}"
+        text="${text%.*}"
+    fi
     local bundledfont="$SHINCLUDESHARE/deps/figlet-fonts/fonts/${fontname}.flf"
     if [[ -e "$bundledfont" ]];then
         shlog -l info "Using bundled font '$bundledfont'."
         fontname="$bundledfont"
     fi
     if which figlet >/dev/null;then
-        figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+        figletOutput=$(echo -nE "$text" | figlet -w140 -f "$fontname")
     else
         shlog -l warn "Figlet not installed"
         figletOutput="    $*"
@@ -688,17 +694,17 @@ _parse_args() {
         shift
     done
 
-    if [[ "$1" && "$1" == "-" ]] ; then infile=/dev/stdin
-    elif [[ "$1"              ]] ; then infile="$1"
-    elif [[ -e "README.md"    ]] ; then infile="README.md"
+    if [[ "$1" && "$1" == "-" ]] ; then SHINCLUDE_INFILE=/dev/stdin
+    elif [[ "$1"              ]] ; then SHINCLUDE_INFILE="$1"
+    elif [[ -e "README.md"    ]] ; then SHINCLUDE_INFILE="README.md"
     else shlog -l error -x 2 "No file or stdin passed"; fi
 
-    if [[ $IN_PLACE && "$infile" = "/dev/stdin" ]];then
+    if [[ $IN_PLACE && "$SHINCLUDE_INFILE" = "/dev/stdin" ]];then
         usage "Cannot edit STDIN in-place"
         exit 1
     fi
 
-    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$infile")}
+    COMMENT_STYLE=${COMMENT_STYLE:-$(_detect_comment_style "$SHINCLUDE_INFILE")}
     if [[ -z "$COMMENT_STYLE" ]];then
         shlog -l error -x 2 "Unable to detect comment style."
     fi
@@ -707,16 +713,17 @@ _parse_args() {
     shlog -l debug "COMMENT_STYLE=$COMMENT_STYLE"
     shlog -l debug "COMMENT_START=$COMMENT_START"
     shlog -l debug "COMMENT_END=$COMMENT_END"
-    shlog -l debug "infile=$infile"
+    shlog -l debug "SHINCLUDE_INFILE=$SHINCLUDE_INFILE"
 }
 
+export COMMENT_STYLE SHINCLUDE_INFILE
 _parse_args "$@"
 
 # first pass
 tempfile1=$(mktemp --tmpdir)
 shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-shinclude::read_lines 1 "$infile" > "$tempfile1"
+shinclude::read_lines 1 "$SHINCLUDE_INFILE" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)
@@ -725,7 +732,7 @@ trap 'rm $tempfile2' EXIT INT TERM
 shinclude::read_lines 2 "$tempfile1" > "$tempfile2"
 
 if [[ $IN_PLACE ]];then
-    cp "$tempfile2" "$infile"
+    cp "$tempfile2" "$SHINCLUDE_INFILE"
 else
     cat "$tempfile2"
 fi

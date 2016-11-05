@@ -31,13 +31,13 @@ BLOCK_PASS[BANNER]=1
 shinclude::block::BANNER() {
     eval set -- "$1" || shlog -l error -x 2 "Error parsing arguments to BANNER"
     shlog -l trace "_draw_banner '$1' '$2' '$3' '$4' '$5' '$6' '$7' '$8'"
-    fontname="standard"
-    prefix=""
-    suffix=""
-    indent=""
-    license_printf="\nThis software may be modified and distributed under the terms
+    local fontname="standard"
+    local prefix=""
+    local suffix=""
+    local indent=""
+    local license_printf="\nThis software may be modified and distributed under the terms
 of the %s license.  See the LICENSE file for details.\n \n"
-    copyright_printf="\nCopyright (c) %s\n \n"
+    local copyright_printf="\nCopyright (c) %s\n \n"
     ##
     ## #### Options
     while [[ "$1" = -* ]];do
@@ -76,13 +76,19 @@ of the %s license.  See the LICENSE file for details.\n \n"
         esac
         shift
     done
+    local text="$*"
+    if [[ -z "$text" ]];then
+        text="$SHINCLUDE_INFILE"
+        text="${text##*/}"
+        text="${text%.*}"
+    fi
     local bundledfont="$SHINCLUDESHARE/deps/figlet-fonts/fonts/${fontname}.flf"
     if [[ -e "$bundledfont" ]];then
         shlog -l info "Using bundled font '$bundledfont'."
         fontname="$bundledfont"
     fi
     if which figlet >/dev/null;then
-        figletOutput=$(echo -nE "$@" | figlet -w140 -f "$fontname")
+        figletOutput=$(echo -nE "$text" | figlet -w140 -f "$fontname")
     else
         shlog -l warn "Figlet not installed"
         figletOutput="    $*"
