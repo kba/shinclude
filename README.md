@@ -5,14 +5,14 @@ Include file contents or ouptut of shell commands in a code/markup comments
 [![Build Status](https://travis-ci.org/kba/shinclude.svg?branch=master)](https://travis-ci.org/kba/shinclude)
 
 <!-- BEGIN-BANNER -f "DOS Rebel" -i "\t" shinclude -->
-	         █████       ███                      ████                 █████         
-	        ░░███       ░░░                      ░░███                ░░███          
-	  █████  ░███████   ████  ████████    ██████  ░███  █████ ████  ███████   ██████ 
+	         █████       ███                      ████                 █████
+	        ░░███       ░░░                      ░░███                ░░███
+	  █████  ░███████   ████  ████████    ██████  ░███  █████ ████  ███████   ██████
 	 ███░░   ░███░░███ ░░███ ░░███░░███  ███░░███ ░███ ░░███ ░███  ███░░███  ███░░███
-	░░█████  ░███ ░███  ░███  ░███ ░███ ░███ ░░░  ░███  ░███ ░███ ░███ ░███ ░███████ 
-	 ░░░░███ ░███ ░███  ░███  ░███ ░███ ░███  ███ ░███  ░███ ░███ ░███ ░███ ░███░░░  
-	 ██████  ████ █████ █████ ████ █████░░██████  █████ ░░████████░░████████░░██████ 
-	░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  ░░░░░   ░░░░░░░░  ░░░░░░░░  ░░░░░░  
+	░░█████  ░███ ░███  ░███  ░███ ░███ ░███ ░░░  ░███  ░███ ░███ ░███ ░███ ░███████
+	 ░░░░███ ░███ ░███  ░███  ░███ ░███ ░███  ███ ░███  ░███ ░███ ░███ ░███ ░███░░░
+	 ██████  ████ █████ █████ ████ █████░░██████  █████ ░░████████░░████████░░██████
+	░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  ░░░░░   ░░░░░░░░  ░░░░░░░░  ░░░░░░
 
 <!-- END-BANNER -->
 
@@ -44,6 +44,9 @@ Include file contents or ouptut of shell commands in a code/markup comments
 			* [-f, --font FONT](#-f---font-font)
 			* [-i, --indent INDENT](#-i---indent-indent)
 			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after)
+			* [-b, --blurb TEXT](#-b---blurb-text)
+			* [-L, --license TEXT](#-l---license-text)
+			* [-C, --copyright TEXT](#-c---copyright-text)
 * [COMMENT STYLES](#comment-styles)
 	* [xml](#xml)
 	* [markdown](#markdown)
@@ -288,7 +291,7 @@ Shows a banner using FIGlet or TOIlet
 
 BANNER Runs on **first** pass
 
-    # BEGIN-BANNER -f standard -w '<pre>' '</pre>' foo
+    # BEGIN-BANNER -f standard -w '<pre>' '</pre>' -C '2016 John Doe' foo
     # END-BANNER
 
 
@@ -301,6 +304,9 @@ will be transformed to
     | |_ / _ \ / _ \ 
     |  _| (_) | (_) |
     |_|  \___/ \___/ 
+
+    Copyright (c) 2016 John Doe
+
     </pre>
     # END-EVAL
 
@@ -317,6 +323,18 @@ Specify indent. Example: `-i "	"`, `-i '    '`
 ##### -w, --wrap BEFORE AFTER
 
 Wrap in lines. E.g `-w '<pre>' '</pre'`
+
+##### -b, --blurb TEXT
+
+Text to append, e.g. license information. Example: `-b 'Licensed under MIT'
+
+##### -L, --license TEXT
+
+License of the file. Example `-L MIT`
+
+##### -C, --copyright TEXT
+
+Copyright of the file. Example `-L "2016, John Doe`
 
 <!-- END-RENDER -->
 
