@@ -7,6 +7,7 @@
 * [another](#another)
 * [duplicate](#duplicate-2)
 * [another](#another-1)
+* [delinked yes](#delinked-yes)
 
 []: END-MARKDOWN-TOC
 
@@ -14,3 +15,4 @@
 ## another
 ## duplicate
 ## another
+## [delinked] yes

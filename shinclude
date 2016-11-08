@@ -256,9 +256,11 @@ HEADING_REGEX='^(##+)\s*(.*)'
 ##
 # shellcheck disable=2004
 shinclude::markdown::heading_to_toc() {
-    local heading indent link_text link_target
+    local indent link_text link_target
     pounds="$1"
-    link_text="$2"
+    ## Link text: Remove `[ ]`
+    # shellcheck disable=2001
+    link_text=$(echo "$2" |tr -d '[]')
     ## Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
     ##
     indent=${pounds#\##}
@@ -266,17 +268,17 @@ shinclude::markdown::heading_to_toc() {
     ## Link target: Start with Link Text
     ##
     ## * lowercase
-    ## * remove `` $ ` ( ) . , % : ? / @ !``
+    ## * remove `` $ ` ( ) . , % : ? / @ ! [ ]``
     ## * Replace all non-alphanumeric characters with `-`
     ## * If link target not used previously
     ## * then set `EXISTING_HEADINGS[$link_target]` to `1`
     ## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
     ##
     link_target=$(
-        echo "${link_text,,}" | sed \
-            -e 's,<[^>]*>,,g' \
-            -e 's_[\$\`()\.,%:\?\/@\!]__g' \
-            -e 's,[^a-z0-9_],-,g'
+        echo "${link_text,,}" \
+            | sed -e 's,<[^>]*>,,g' \
+            | tr -d '$`().,%:?/@![]' \
+            | sed -e 's,[^[:alnum:]_],-,g'
         )
     shlog -l trace "MARKDOWN-TOC: Link Text: '$link_text' Link level: '${#pounds}' Link target: '$link_target'"
     if [[ -n "$link_target" ]];then
@@ -294,12 +296,12 @@ shinclude::markdown::heading_to_toc() {
 }
 
 shinclude::block::MARKDOWN-TOC () {
-    local blockargs block line infile
+    local line infile
     typeset -A EXISTING_HEADINGS
     EXISTING_HEADINGS=()
     infile="$3"
     IFS=$'\n'
-    while read line;do
+    while read -r line;do
         if [[ $line =~ $HEADING_REGEX ]];then
             shinclude::markdown::heading_to_toc "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
         fi

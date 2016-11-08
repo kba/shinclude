@@ -232,7 +232,7 @@ Regex used to detect and tokenize headings\.
 Default: \fB^(##+)\es*(\.*)\fR
 .
 .P
-Indentation: Concatenate \fB$MARKDOWN_TOC_INDENT\fR times the number of leading \fB#\fR\- 2
+Link text: Remove \fB[ ]\fR Indentation: Concatenate \fB$MARKDOWN_TOC_INDENT\fR times the number of leading \fB#\fR\- 2
 .
 .P
 Link target: Start with Link Text
@@ -241,7 +241,7 @@ Link target: Start with Link Text
 lowercase
 .
 .IP "\(bu" 4
-remove \fB$ ` ( ) \. , % : ? / @ !\fR
+remove \fB$ ` ( ) \. , % : ? / @ ! [ ]\fR
 .
 .IP "\(bu" 4
 Replace all non\-alphanumeric characters with \fB\-\fR
