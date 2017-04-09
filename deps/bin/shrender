@@ -33,6 +33,7 @@ declare -Axg EXT_TO_RENDER_PREFIX=(
     [bash]="$SHRENDER_DEFAULT_PREFIX"
     [java]="\*\* \?"
     [cpp]="\*\* \?"
+    [js]="\* "
 )
 
 
@@ -190,7 +191,7 @@ shrender::prefix () {
         INPUT_PREFIX=$SHRENDER_DEFAULT_PREFIX
     fi
     shlog -l info "Rendering '$renderfile' by prefix '$INPUT_PREFIX'"
-    grep "^\s*$INPUT_PREFIX" "$1" | sed "s/^\s*$INPUT_PREFIX//"
+    grep "^\s*$INPUT_PREFIX" "$1" | sed "s,^\s*${INPUT_PREFIX},,"
 }
 
 
