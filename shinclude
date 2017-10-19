@@ -594,7 +594,13 @@ usage() {
 
     Input File:
         If input-file is "-", read from STDIN.
-        If no input-file is given, assume "./README.md"'
+        If no input-file is given, assume "./README.md"
+
+    Logging:
+        shinclude logs with shlog. See https://github.com/kba/shlog
+        To set the default logging level, set the SHLOG_TERM environment var:
+
+        SHLOG_TERM=info shinclude ...'
 }
 
 #
