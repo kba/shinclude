@@ -1,7 +1,11 @@
+# Script name. Default: 'shinclude'
 SCRIPT = shinclude
+
 VERSION = 0.0.1
 
+# Install prefix. Default: '/usr/local'
 PREFIX = /usr/local
+
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/share/man/man1
 SHAREDIR = $(PREFIX)/share/$(SCRIPT)
@@ -22,19 +26,47 @@ SCRIPT_SOURCES = \
 				 src/read-lines.bash \
 				 src/usage.bash \
 				 src/cli.bash
-				
+
 SCRIPT_INCLUDES = src/style.bash $(wildcard src/block-*.bash)
 
 export SHLOG_TERM=info
 
+# BEGIN-EVAL makefile-parser --make-help Makefile
+
+help:
+	@echo ""
+	@echo "  Targets"
+	@echo ""
+	@echo "    all          Build deps, shinclude the manpage and the README.md"
+	@echo "    deps         Setup dependencies"
+	@echo "    build-deps   Check Development dependencies"
+	@echo "    $(SCRIPT)    Assemble the script"
+	@echo "    $(SCRIPT).1  Build man page (shinclude -> ronn)"
+	@echo "    README.md    Run shinclude on README.md"
+	@echo "    Makefile     Run shinclude on Makefile"
+	@echo "    clean        Remove built manpage and script"
+	@echo "    realclean    Remove built manpage, script, README.md and deps"
+	@echo "    install      Install to $(PREFIX)"
+	@echo "    uninstall    Uninstall from $(PREFIX)"
+	@echo "    test         Run tests"
+	@echo ""
+	@echo "  Variables"
+	@echo ""
+	@echo "    SCRIPT  Script name. Default: 'shinclude'"
+	@echo "    PREFIX  Install prefix. Default: '/usr/local'"
+
+# END-EVAL
+
 .PHONY: test all
 
-all: deps $(SCRIPT) $(SCRIPT).1 README.md
+# Build deps, shinclude the manpage and the README.md
+all: deps $(SCRIPT) $(SCRIPT).1 README.md Makefile
 
 #
 # Dependencies
 #
 
+# Setup dependencies
 deps: deps/bin/shrender deps/bin/shlog deps/figlet-fonts
 
 deps/bin/shrender:
@@ -46,9 +78,7 @@ deps/bin/shlog:
 deps/figlet-fonts:
 	git clone https://github.com/kba/figlet-fonts "$@"
 
-#
-# Development dependencies
-#
+# Check Development dependencies
 build-deps: test/tsht
 	@which ronn >/dev/null || { \
 		which gem >/dev/null  || { \
@@ -73,17 +103,24 @@ $(SCRIPT).1: $(SCRIPT) doc/$(SCRIPT).1.md
 		| $(RONN) --roff --pipe --name="$(SCRIPT)" --date=`date +"%Y-%m-%d"` \
 		> "$@"
 
-# Build README.md
+# Run shinclude on README.md
 README.md: $(SCRIPT) doc/README.md
 	./$(SCRIPT) -c xml doc/README.md > "$@"
+
+# Run shinclude on Makefile
+.PHONY: Makefile
+Makefile: $(SCRIPT)
+	./$(SCRIPT) -c pound -i Makefile
 
 #
 # Clean
 #
 
+# Remove built manpage and script
 clean:
 	rm -fr $(SCRIPT).1 $(SCRIPT)
 
+# Remove built manpage, script, README.md and deps
 realclean: clean
 	rm -fr README.md deps
 
@@ -91,6 +128,7 @@ realclean: clean
 # Install
 #
 
+# Install to $(PREFIX)
 install: all
 	$(MKDIR) $(BINDIR)
 	sed 's,^SHINCLUDESHARE=.*,SHINCLUDESHARE="$(SHAREDIR)",' $(SCRIPT) > "$(BINDIR)/$(SCRIPT)"
@@ -103,6 +141,8 @@ install: all
 #
 # Uninstall
 #
+
+# Uninstall from $(PREFIX)
 uninstall:
 	$(RM) $(BINDIR)/$(SCRIPT)
 	$(RM) $(MANDIR)/$(SCRIPT).1
@@ -112,5 +152,6 @@ uninstall:
 # Test
 #
 
+# Run tests
 test: test/tsht $(SCRIPT)
 	./test/tsht
