@@ -51,15 +51,18 @@ HEADING_REGEX='^(##+)\s*(.*)'
 ##
 # shellcheck disable=2004
 shinclude::markdown::heading_to_toc() {
-    local indent link_text link_target
+    local indent link_text="$2" link_target
     pounds="$1"
+    ## Replace markdown links in heading with just the link text
+    link_text=$(echo "$link_text"|sed -E 's,\[([^\]*)\]\([^\)]*\),\1,')
     ## Link text: Remove `[ ]`
     # shellcheck disable=2001
-    link_text=$(echo "$2" |tr -d '[]')
+    link_text=$(echo "$link_text" |tr -d '[]')
     ## Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
     ##
     indent=${pounds#\##}
     indent=${indent//\#/$MARKDOWN_TOC_INDENT}
+
     ## Link target: Start with Link Text
     ##
     ## * lowercase

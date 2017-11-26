@@ -86,6 +86,8 @@ of the %s license.  See the LICENSE file for details.\n \n"
     if [[ -e "$bundledfont" ]];then
         shlog -l info "Using bundled font '$bundledfont'."
         fontname="$bundledfont"
+    else
+        shlog -l info "Font not bundled: '$bundledfont'."
     fi
     if which figlet >/dev/null;then
         figletOutput=$(echo -nE "$text" | figlet -w140 -f "$fontname")

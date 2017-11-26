@@ -271,6 +271,7 @@ Default: `^(##+)\s*(.*)`
 
 #### Heading-to-Link algorithm
 
+Replace markdown links in heading with just the link text
 Link text: Remove `[ ]`
 Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
 
