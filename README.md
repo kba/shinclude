@@ -57,6 +57,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [doubleslash](#doubleslash)
 	* [doublequote](#doublequote)
 	* [doubleslashbang](#doubleslashbang)
+	* [Vim fold](#vim-fold)
 
 <!-- END-MARKDOWN-TOC -->
 
@@ -444,5 +445,12 @@ Extensions:
 
   * `*.jade`
   * `*.pug`
+
+### Vim fold
+
+Comment style:
+
+    #{{{ BEGIN-...
+    #}}} END-...
 
 <!-- END-RENDER -->

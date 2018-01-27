@@ -526,6 +526,17 @@ COMMENT_STYLE_END[doubleslashbang]=""
 EXT_TO_COMMENT_STYLE[jade]='doubleslashbang'
 EXT_TO_COMMENT_STYLE[pug]='doubleslashbang'
 
+## ### Vim fold
+##
+## Comment style:
+##
+##     #{{{ BEGIN-...
+##     #}}} END-...
+##
+COMMENT_STYLE_START[vimfold]="#{{{"
+COMMENT_STYLE_START_ALTERNATIVE[vimfold]="#}}}"
+COMMENT_STYLE_END[vimfold]=""
+
 # ### _detect_comment_style
 # 
 # Detect comment style by file extension. Default: 'xml'
