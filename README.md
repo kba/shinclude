@@ -33,6 +33,8 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [-ddd, --trace](#-ddd---trace)
 * [BLOCK DIRECTIVES](#block-directives)
 	* [EVAL](#eval)
+		* [Options](#options-1)
+			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after)
 	* [INCLUDE](#include)
 	* [RENDER](#render)
 	* [MARKDOWN-TOC](#markdown-toc)
@@ -40,10 +42,10 @@ Include file contents or ouptut of shell commands in a code/markup comments
 		* [`$HEADING_REGEX`](#heading_regex)
 		* [Heading-to-Link algorithm](#heading-to-link-algorithm)
 	* [BANNER](#banner)
-		* [Options](#options-1)
+		* [Options](#options-2)
 			* [-f, --font FONT](#-f---font-font)
 			* [-i, --indent INDENT](#-i---indent-indent)
-			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after)
+			* [-w, --wrap BEFORE AFTER](#-w---wrap-before-after-1)
 			* [-b, --blurb TEXT](#-b---blurb-text)
 			* [-L, --license TEXT](#-l---license-text)
 			* [-C, --copyright TEXT](#-c---copyright-text)
@@ -179,6 +181,13 @@ will be transformed to
     1723  4100 36080 total
 
     # END-EVAL
+
+
+#### Options
+
+##### -w, --wrap BEFORE AFTER
+
+Wrap in lines. E.g `-w '<pre>' '</pre'`
 
 <!-- END-RENDER -->
 

@@ -26,7 +26,32 @@ typeset -A BLOCK_PASS
 BLOCK_PASS[EVAL]=1
 
 shinclude::block::EVAL () {
-    local blockargs
-    blockargs="$1"
-    printf "%s" "$(eval "${blockargs//\//\/}")" 
+    local evalargs prefix suffix
+    prefix=""
+    suffix=""
+
+    if [[ "$1" = -* ]];then
+        evalargs="${1#*-- }"
+        eval set -- "${1%% --*}" || shlog -l error -x 2 "Error parsing arguments to BANNER"
+        ##
+        ## #### Options
+        while [[ "$1" = -* ]];do
+            case "$1" in
+                ## 
+                ## ##### -w, --wrap BEFORE AFTER
+                ##
+                ## Wrap in lines. E.g `-w '<pre>' '</pre'`
+                ##
+                -w|-wrap|--wrap) prefix="$2\n" ; suffix="\n$3" ; shift ; shift ;;
+            esac
+            shift
+        done
+    else
+        evalargs="$1"
+    fi
+
+    # shlog -l info "prefix=$prefix suffix=$suffix evalargs=$evalargs"
+    # y=$(printf "%s\n%s\n%s" "$prefix" "$(eval "${evalargs//\//\/}")" "$suffix")
+    # shlog -l info "$y"
+    printf "%b%s%b" "$prefix" "$(eval "${evalargs//\//\/}")" "$suffix"
 }

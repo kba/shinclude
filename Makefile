@@ -31,7 +31,7 @@ SCRIPT_INCLUDES = src/style.bash $(wildcard src/block-*.bash)
 
 export SHLOG_TERM=info
 
-# BEGIN-EVAL makefile-parser --make-help Makefile
+# BEGIN-RENDER Makefile
 
 help:
 	@echo ""
@@ -55,7 +55,7 @@ help:
 	@echo "    SCRIPT  Script name. Default: 'shinclude'"
 	@echo "    PREFIX  Install prefix. Default: '/usr/local'"
 
-# END-EVAL
+# END-RENDER
 
 .PHONY: test all
 
