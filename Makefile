@@ -1,7 +1,7 @@
 # Script name. Default: 'shinclude'
 SCRIPT = shinclude
 
-VERSION = 0.0.3
+VERSION = 0.0.4
 
 # Install prefix. Default: '/usr/local'
 PREFIX = /usr/local

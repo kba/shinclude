@@ -1,6 +1,6 @@
 {
     "name": "shinclude",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Directives for code comments",
     "scripts": [
         "dist/shinclude"
