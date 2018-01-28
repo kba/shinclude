@@ -27,6 +27,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [-p, --shinclude-path PATH](#-p---shinclude-path-path)
 	* [-c, --comment-style COMMENT_STYLE](#-c---comment-style-comment_style)
 	* [-cs, --comment-start COMMENT_START](#-cs---comment-start-comment_start)
+	* [-csa, --comment-start-alternative COMMENT_START_ALTERNATIVE](#-csa---comment-start-alternative-comment_start_alternative)
 	* [-ce, --comment-end COMMENT_END](#-ce---comment-end-comment_end)
 	* [-d, --info](#-d---info)
 	* [-dd, --debug](#-dd---debug)
@@ -119,6 +120,14 @@ Use `-c list` to get a list of available styles.
 ### -cs, --comment-start COMMENT_START
 
  Comment start. Overrides language-specific comment start.
+
+See [COMMENT STYLES](#comment-styles).
+
+### -csa, --comment-start-alternative COMMENT_START_ALTERNATIVE
+
+ Alternative comment start. Overrides language-specific comment start.
+
+Useful for vim folds
 
 See [COMMENT STYLES](#comment-styles).
 

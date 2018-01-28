@@ -18,6 +18,15 @@ export EXT_TO_COMMENT_STYLE=()
 typeset -A COMMENT_STYLE_START
 export COMMENT_STYLE_START=()
 
+# #### `$COMMENT_STYLE_START_ALTERNATIVE`
+#
+# Associative array of comment start strings for select languages
+#
+#       COMMENT_STYLE_START_ALTERNATIVE[html]="<!--"
+#
+typeset -A COMMENT_STYLE_START_ALTERNATIVE
+export COMMENT_STYLE_START_ALTERNATIVE=()
+
 # #### `$COMMENT_STYLE_END`
 #
 # Associative array of comment start strings for select languages

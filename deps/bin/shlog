@@ -33,6 +33,9 @@ shlog () {
     if [[ ! -z "$SHLOG_SILENT" ]];then
         return
     fi
+    if type -t shlog::before >/dev/null;then
+        shlog::before "$@"
+    fi
     local level msg module
     level="trace"
     if [[ "${BASH_SOURCE[0]}" != "$0" ]];then
@@ -61,10 +64,10 @@ shlog () {
         esac
         shift
     done
-    if [[ -z "$1" && -z "$msg" ]];then
-        shlog::usage
-        exit
-    fi
+    # if [[ -z "$1" && -z "$msg" ]];then
+    #     shlog::usage
+    #     return
+    # fi
     msg="${msg:-$*}"
     local output
     for output in "${!SHLOG_OUTPUTS[@]}";do
@@ -377,8 +380,6 @@ shlog::pipe () {
         shlog "${shlogargs[@]}" "$line"
     done
 }
-typeset -Agx SHLOG_PROFILE=()
-
 #api: ### `shlog::profile`
 #api: 
 #api: Profile the execution time of shell code.
@@ -400,6 +401,8 @@ typeset -Agx SHLOG_PROFILE=()
 #api: # [info ] - Profiled 'sleep': 1705 ms
 #api: # [debug] - Profiled 'sleep': 708 ms
 #api: ```
+
+typeset -Agx SHLOG_PROFILE
 
 shlog::profile () {
     local now elapsed name do_log
@@ -431,7 +434,7 @@ shlog::profile () {
 # main function with args
 shlog::reload
 if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
-    export -f shlog shlog::dump
+    export -f shlog shlog::dump shlog::profile
 else
     shlog "${@}"
 fi

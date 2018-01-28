@@ -16,6 +16,6 @@ shinclude::block::RENDER() {
         dollarone="-p '$p' $dollarone"
     done
     eval set -- "$dollarone"
-    shlog -l debug "shrender $*"
+    shlog -l debug "shrender '$1' '$2' '$3' '$4'"
     shrender "$@"
 }

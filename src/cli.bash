@@ -59,6 +59,17 @@ _parse_args() {
                 ##
                 COMMENT_START="$2"; shift
                 ;;
+            -csa|--comment-start-alternative)
+                ## ### -csa, --comment-start-alternative COMMENT_START_ALTERNATIVE
+                ##
+                ## Alternative comment start. Overrides language-specific comment start.
+                ##
+                ## Useful for vim folds
+                ##
+                ## See [COMMENT STYLES](#comment-styles).
+                ##
+                COMMENT_START_ALTERNATIVE="$2"; shift
+                ;;
             -ce|--comment-end)
                 ## ### -ce, --comment-end COMMENT_END
                 ##
@@ -112,9 +123,11 @@ _parse_args() {
         shlog -l error -x 2 "Unable to detect comment style."
     fi
     COMMENT_START=${COMMENT_START:-${COMMENT_STYLE_START[$COMMENT_STYLE]}}
+    COMMENT_START_ALTERNATIVE=${COMMENT_START_ALTERNATIVE:-${COMMENT_STYLE_START_ALTERNATIVE[$COMMENT_STYLE]}}
     COMMENT_END=${COMMENT_END:-${COMMENT_STYLE_END[$COMMENT_STYLE]}}
     shlog -l debug "COMMENT_STYLE=$COMMENT_STYLE"
     shlog -l debug "COMMENT_START=$COMMENT_START"
+    shlog -l debug "COMMENT_START_ALTERNATIVE=$COMMENT_START_ALTERNATIVE"
     shlog -l debug "COMMENT_END=$COMMENT_END"
     shlog -l debug "SHINCLUDE_INFILE=$SHINCLUDE_INFILE"
 }
