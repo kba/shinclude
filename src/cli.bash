@@ -135,11 +135,17 @@ _parse_args() {
 export COMMENT_STYLE SHINCLUDE_INFILE
 _parse_args "$@"
 
+# expand HERE- to BEGIN- / END-
+tempfile0=$(mktemp --tmpdir)
+shlog -l debug "tempfile0=$tempfile0 (pass 1)"
+trap 'rm $tempfile0' EXIT INT TERM
+shinclude::read_lines 0 "$SHINCLUDE_INFILE" > "$tempfile0"
+
 # first pass
 tempfile1=$(mktemp --tmpdir)
 shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-shinclude::read_lines 1 "$SHINCLUDE_INFILE" > "$tempfile1"
+shinclude::read_lines 1 "$tempfile0" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)

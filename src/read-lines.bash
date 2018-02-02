@@ -13,32 +13,34 @@ shinclude::read_lines() {
   alternativeStartPattern="${COMMENT_START_ALTERNATIVE:-$COMMENT_START}"
 
   while read -r line;do
-    shlog -l info "line='${line:0:10}'"
+    shlog -l debug "line='${line:0:10}'"
     # shlog -l info "line='${line:10}' startPattern='$startPattern'"
-    local currentStartPattern
-
     # shlog -l info "foo=$foo line=$line"
-    if [[ "$line" = "${startPattern} BEGIN-"** ]];then
-        currentStartPattern="$startPattern"
-    fi
-    # shlog -l info "currentStartPattern=$currentStartPattern"
 
-    if [[ ! -z "$currentStartPattern" ]];then
+    if [[ $pass = 0 && $line = "$startPattern HERE-"* ]];then
+      local blocktype_and_blockargs blocktype
+      blocktype_and_blockargs="${line##*HERE-}"
+      blocktype_and_blockargs="${blocktype_and_blockargs%$COMMENT_END}"
+      blocktype="${blocktype_and_blockargs%% *}"
+      shlog -l error "$startPattern BEGIN-${blocktype_and_blockargs}\n"
+      printf "$startPattern BEGIN-${blocktype_and_blockargs}\n"
+      printf "$alternativeStartPattern END-${blocktype}\n"
+    elif [[ "$line" = "${startPattern} BEGIN-"** ]];then
       begin="$line"
 
-      blocktype="${begin:${#currentStartPattern}:${#line}}"
+      blocktype="${begin:${#startPattern}:${#line}}"
       blocktype="${blocktype##*BEGIN-}"
       blocktype="${blocktype%$COMMENT_END}"
       blocktype="${blocktype%% *}"
 
-      shlog -l info "currentStartPattern=$currentStartPattern alternativeStartPattern=$alternativeStartPattern"
-      shlog -l info "blocktype=$blocktype"
+      shlog -l debug "startPattern=$startPattern alternativeStartPattern=$alternativeStartPattern"
+      shlog -l debug "blocktype=$blocktype"
 
-      blockargs="${begin:${#currentStartPattern}:${#line}}"
+      blockargs="${begin:${#startPattern}:${#line}}"
       blockargs="${blockargs#*BEGIN-$blocktype}"
       blockargs="${blockargs# }"
       blockargs="${blockargs% $COMMENT_END}"
-      shlog -l info "2 blockargs=$blockargs"
+      # shlog -l debug "2 blockargs=$blockargs"
 
       block=""
       while

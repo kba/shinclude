@@ -573,35 +573,39 @@ shinclude::read_lines() {
   pass=$1
   infile=$2
   IFS=$'\n'
-  local alternativeStartPattern
+  local startPattern alternativeStartPattern
+  startPattern="$COMMENT_START"
   alternativeStartPattern="${COMMENT_START_ALTERNATIVE:-$COMMENT_START}"
 
   while read -r line;do
-    # shlog -l info "line='${line:0:10}'"
-    local matched=
-    # shlog -l info "line='${line:10}' $COMMENT_START='$$COMMENT_START'"
+    shlog -l debug "line='${line:0:10}'"
+    # shlog -l info "line='${line:10}' startPattern='$startPattern'"
     # shlog -l info "foo=$foo line=$line"
-    if [[ "$line" = "$COMMENT_START BEGIN-"* ]];then
-        matched=true
-    fi
-    # shlog -l info "$COMMENT_START=$$COMMENT_START"
 
-    if [[ $matched = true ]];then
+    if [[ $pass = 0 && $line = "$startPattern HERE-"* ]];then
+      local blocktype_and_blockargs blocktype
+      blocktype_and_blockargs="${line##*HERE-}"
+      blocktype_and_blockargs="${blocktype_and_blockargs%$COMMENT_END}"
+      blocktype="${blocktype_and_blockargs%% *}"
+      shlog -l error "$startPattern BEGIN-${blocktype_and_blockargs}\n"
+      printf "$startPattern BEGIN-${blocktype_and_blockargs}\n"
+      printf "$alternativeStartPattern END-${blocktype}\n"
+    elif [[ "$line" = "${startPattern} BEGIN-"** ]];then
       begin="$line"
 
-      blocktype="${begin:${#COMMENT_START}:${#line}}"
+      blocktype="${begin:${#startPattern}:${#line}}"
       blocktype="${blocktype##*BEGIN-}"
       blocktype="${blocktype%$COMMENT_END}"
       blocktype="${blocktype%% *}"
 
-      # shlog -l info "$COMMENT_START=$COMMENT_START alternativeStartPattern=$alternativeStartPattern"
-      # shlog -l info "blocktype=$blocktype"
+      shlog -l debug "startPattern=$startPattern alternativeStartPattern=$alternativeStartPattern"
+      shlog -l debug "blocktype=$blocktype"
 
-      blockargs="${begin:${#COMMENT_START}:${#line}}"
+      blockargs="${begin:${#startPattern}:${#line}}"
       blockargs="${blockargs#*BEGIN-$blocktype}"
       blockargs="${blockargs# }"
       blockargs="${blockargs% $COMMENT_END}"
-      # shlog -l info "2 blockargs=$blockargs"
+      # shlog -l debug "2 blockargs=$blockargs"
 
       block=""
       while
@@ -807,11 +811,17 @@ _parse_args() {
 export COMMENT_STYLE SHINCLUDE_INFILE
 _parse_args "$@"
 
+# expand HERE- to BEGIN- / END-
+tempfile0=$(mktemp --tmpdir)
+shlog -l debug "tempfile0=$tempfile0 (pass 1)"
+trap 'rm $tempfile0' EXIT INT TERM
+shinclude::read_lines 0 "$SHINCLUDE_INFILE" > "$tempfile0"
+
 # first pass
 tempfile1=$(mktemp --tmpdir)
 shlog -l debug "tempfile1=$tempfile1 (pass 1)"
 trap 'rm $tempfile1' EXIT INT TERM
-shinclude::read_lines 1 "$SHINCLUDE_INFILE" > "$tempfile1"
+shinclude::read_lines 1 "$tempfile0" > "$tempfile1"
 
 # second pass
 tempfile2=$(mktemp --tmpdir)
