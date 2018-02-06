@@ -10,6 +10,7 @@ shinclude::read_lines() {
   IFS=$'\n'
   local startPattern alternativeStartPattern
   startPattern="$COMMENT_START"
+  endPattern="$COMMENT_END"
   alternativeStartPattern="${COMMENT_START_ALTERNATIVE:-$COMMENT_START}"
 
   while read -r line;do
@@ -23,8 +24,8 @@ shinclude::read_lines() {
       blocktype_and_blockargs="${blocktype_and_blockargs%$COMMENT_END}"
       blocktype="${blocktype_and_blockargs%% *}"
       shlog -l error "$startPattern BEGIN-${blocktype_and_blockargs}\n"
-      printf "$startPattern BEGIN-${blocktype_and_blockargs}\n"
-      printf "$alternativeStartPattern END-${blocktype}\n"
+      printf "$startPattern BEGIN-${blocktype_and_blockargs} $endPattern\n"
+      printf "$alternativeStartPattern END-${blocktype} $endPattern\n"
     elif [[ "$line" = "${startPattern} BEGIN-"** ]];then
       begin="$line"
 
