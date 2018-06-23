@@ -140,7 +140,7 @@ install: all
 	$(MKDIR) $(MANDIR)
 	$(CP) $(SCRIPT).1 $(MANDIR)/$(SCRIPT).1
 	$(MKDIR) $(SHAREDIR)
-	$(CP) -t $(SHAREDIR) README.md LICENSE deps
+	$(CP) -t $(SHAREDIR) README.md LICENSE deps package.json
 
 #
 # Uninstall

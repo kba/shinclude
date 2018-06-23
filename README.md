@@ -23,6 +23,7 @@ Include file contents or ouptut of shell commands in a code/markup comments
 	* [Home directory](#home-directory)
 * [OPTIONS](#options)
 	* [-h, --help](#-h---help)
+	* [-V, --version](#-v---version)
 	* [-i, --inplace](#-i---inplace)
 	* [-p, --shinclude-path PATH](#-p---shinclude-path-path)
 	* [-c, --comment-style COMMENT_STYLE](#-c---comment-style-comment_style)
@@ -98,6 +99,10 @@ make install PREFIX=$HOME/.local
 ### -h, --help
 
 help
+
+### -V, --version
+
+Show version
 
 ### -i, --inplace
 

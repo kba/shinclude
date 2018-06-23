@@ -14,6 +14,13 @@ _parse_args() {
                 ##
                 usage
                 exit ;;
+            -V|--version)
+                ## ### -V, --version
+                ##
+                ## Show version
+                ##
+                grep 'version' "$SHINCLUDE_PATH/package.json"|sed -e 's/",//'|grep -o '[0-9].\+'
+                exit ;;
             -i|--inplace)
                 ## ### -i, --inplace
                 ##
