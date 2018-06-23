@@ -67,13 +67,16 @@ all: deps $(SCRIPT) $(SCRIPT).1 README.md Makefile
 #
 
 # Setup dependencies
-deps: deps/bin/shrender deps/bin/shlog deps/figlet-fonts
+deps: deps/bin/markdown-heading-anchor deps/bin/shrender deps/bin/shlog deps/figlet-fonts
 
 deps/bin/shrender:
 	$(MKDIR) "$(dir $@)" && wget -O "$@" "https://rawgit.com/kba/shrender/master/shrender" && chmod a+x "$@"
 
 deps/bin/shlog:
 	$(MKDIR) "$(dir $@)" && wget -O "$@" "https://rawgit.com/kba/shlog/master/shlog" && chmod a+x "$@"
+
+deps/bin/markdown-heading-anchor:
+	$(MKDIR) "$(dir $@)" && wget -O "$@" "https://rawgit.com/kba/home-bin/master/bin/$(notdir $@)" && chmod a+x "$@"
 
 deps/figlet-fonts:
 	git clone https://github.com/kba/figlet-fonts "$@"

@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "SHINCLUDE" "1" "February 2018" "" ""
+.TH "SHINCLUDE" "1" "June 2018" "" ""
 .
 .SH "NAME"
 \fBshinclude\fR \- include directives for code/markup comments
@@ -245,29 +245,6 @@ Default: \fB^(##+)\es*(\.*)\fR
 .
 .P
 Replace markdown links in heading with just the link text Link text: Remove \fB[ ]\fR Indentation: Concatenate \fB$MARKDOWN_TOC_INDENT\fR times the number of leading \fB#\fR\- 2
-.
-.P
-Link target: Start with Link Text
-.
-.IP "\(bu" 4
-lowercase
-.
-.IP "\(bu" 4
-remove \fB$ ` ( ) \. , % : ? / @ ! [ ]\fR
-.
-.IP "\(bu" 4
-Replace all non\-alphanumeric characters with \fB\-\fR
-.
-.IP "\(bu" 4
-If link target not used previously
-.
-.IP "\(bu" 4
-then set \fBEXISTING_HEADINGS[$link_target]\fR to \fB1\fR
-.
-.IP "\(bu" 4
-else increase \fBEXISTING_HEADINGS[$link_target]\fR by one and concatenate
-.
-.IP "" 0
 .
 .SH "COMMENT STYLES"
 .

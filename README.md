@@ -294,15 +294,6 @@ Replace markdown links in heading with just the link text
 Link text: Remove `[ ]`
 Indentation: Concatenate `$MARKDOWN_TOC_INDENT` times  the number of leading `#`- 2
 
-Link target: Start with Link Text
-
-* lowercase
-* remove `` $ ` ( ) . , % : ? / @ ! [ ]``
-* Replace all non-alphanumeric characters with `-`
-* If link target not used previously
-* then set `EXISTING_HEADINGS[$link_target]` to `1`
-* else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
-
 <!-- END-RENDER -->
 
 <!-- BEGIN-RENDER src/block-BANNER.bash -->

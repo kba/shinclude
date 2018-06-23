@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Translate markdown heading text to GFM-compatible anchor text
+
+## Link target: Start with Link Text
+##
+## * lowercase
+## * remove `` $ ` ( ) . , % : ? / @ ! [ ]``
+## * Replace all non-alphanumeric characters with `-`
+## * If link target not used previously
+## * then set `EXISTING_HEADINGS[$link_target]` to `1`
+## * else increase `EXISTING_HEADINGS[$link_target]` by one and concatenate
+##
+
+markdown-heading-anchor-from-text () {
+    local link_text
+    for link_text in "$@";do
+        echo "${link_text,,}" \
+            | sed -e 's,<[^>]*>,,g' \
+            | tr -d '$`().,%:?/@![]' \
+            | sed -e 's,[^[:alnum:]_],-,g'
+    done
+}
+
+markdown-heading-anchor-main () {
+    if (( $# > 0 ));then
+        markdown-heading-anchor-from-text "$@"
+    else
+        while read link_text;do
+            markdown-heading-anchor-from-text "$link_text"
+        done
+    fi
+}
+
+[[ "${0##*/}" = markdown-heading-anchor* ]] && markdown-heading-anchor-main "$@"
+
+
