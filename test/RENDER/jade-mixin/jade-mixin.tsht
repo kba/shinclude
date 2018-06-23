@@ -3,4 +3,6 @@ BINARY="../../../shinclude"
 
 use colordiff
 
-equals_file "$($BINARY input.java)" expected
+actual='/tmp/actual-jade-mixin'
+$BINARY input.java > $actual
+equals_file_file $actual expected

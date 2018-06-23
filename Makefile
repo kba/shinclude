@@ -29,7 +29,8 @@ SCRIPT_SOURCES = \
 
 SCRIPT_INCLUDES = src/style.bash $(wildcard src/block-*.bash)
 
-export SHLOG_TERM=info
+SHLOG_TERM=info
+export SHLOG_TERM
 
 # BEGIN-RENDER Makefile
 
