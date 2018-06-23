@@ -1,17 +1,18 @@
 #!/usr/bin/env tsht
 
-use diff
+use colordiff
 plan 1
 
 BINARY="../../shinclude"
 
 # $BINARY -c xml input.md |sed 's/^/#|| /'
+actual="/tmp/actual-banner"
 
-actual="$($BINARY -c xml input.md)"
+$BINARY -c xml input.md > $actual
 if which figlet >/dev/null;then
-equals_file "$actual" expected "BANNER works"
+equals_file_file "$actual" expected "BANNER works"
 else
-equals_file "$actual" expected.nofiglet "BANNER works"
+equals_file_file "$actual" expected.nofiglet "BANNER works"
 fi
 # echo "$actual"
 # echo "$(cat expected)"
